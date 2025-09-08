@@ -33,7 +33,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <skipTests>true</skipTests>
-        <docker.host>http://192.168.3.101:2375</docker.host>
+        <docker.host>http://127.0.0.1:2375</docker.host>
         <docker.maven.plugin.version>0.43.3</docker.maven.plugin.version>
         <pagehelper-starter.version>2.1.0</pagehelper-starter.version>
         <pagehelper.version>6.1.0</pagehelper.version>
@@ -209,16 +209,16 @@
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>${docker.maven.plugin.version}</version>
-                        <executions>
-                            <!--如果想在项目打包时构建镜像添加-->
-                            <execution>
-                                <id>build-image</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+<!--                    <executions>-->
+<!--                        &lt;!&ndash;如果想在项目打包时构建镜像添加&ndash;&gt;-->
+<!--                        <execution>-->
+<!--                            <id>build-image</id>-->
+<!--                            <phase>package</phase>-->
+<!--                            <goals>-->
+<!--                                <goal>build</goal>-->
+<!--                            </goals>-->
+<!--                        </execution>-->
+<!--                    </executions>-->
                     <configuration>
                         <!-- Docker 远程管理地址-->
                         <dockerHost>${docker.host}</dockerHost>
@@ -241,7 +241,9 @@
                                         <descriptorRef>artifact</descriptorRef>
                                     </assembly>
                                     <!--定义容器启动命令-->
-                                    <entryPoint>["java", "-jar","-Dspring.profiles.active=prod","/${project.build.finalName}.jar"]</entryPoint>
+                                    <entryPoint>["java",
+                                        "-jar","-Dspring.profiles.active=prod","/${project.build.finalName}.jar"]
+                                    </entryPoint>
                                     <!--定义维护者-->
                                     <maintainer>macrozheng</maintainer>
                                 </build>

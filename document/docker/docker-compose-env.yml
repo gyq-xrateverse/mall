@@ -2,7 +2,7 @@ version: '3'
 services:
   mysql:
     image: mysql:5.7
-    container_name: mysql
+    container_name: beilv_agent_mysql
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
     environment:
@@ -11,36 +11,37 @@ services:
       - 3306:3306
     volumes:
       - /root/install/mall/mysql/data:/var/lib/mysql #数据文件目录挂载
-      - /root/install/mall/mysql/conf:/etc/mysql #配置文件目录挂载
+#      - /root/install/mall/mysql/conf:/etc/mysql #配置文件目录挂载
       - /root/install/mall/mysql/log:/var/log/mysql #日志文件目录挂载
   redis:
     image: redis:7
-    container_name: redis
+    container_name: beilv_agent_redis
     command: redis-server --appendonly yes
     volumes:
       - /root/install/mall/redis/data:/data #数据文件目录挂载
     ports:
-      - 6379:6379
+      - 16379:6379
   nginx:
     image: nginx:1.22
-    container_name: nginx
+    container_name: beilv_agent_nginx
     volumes:
       - /root/install/mall/nginx/conf:/etc/nginx #配置文件目录挂载
       - /root/install/mall/nginx/html:/usr/share/nginx/html #静态资源根目录挂载
       - /root/install/mall/nginx/logs:/var/log/nginx #日志文件目录挂载
     ports:
-      - 80:80
+      - 8880:80
   rabbitmq:
     image: rabbitmq:3.9.11-management
-    container_name: rabbitmq
+    container_name: beilv_agent_rabbitmq
     volumes:
-      - /root/install/mall/rabbitmq/data:/var/lib/rabbitmq #数据文件目录挂载
+      - /root/install/mall/rabbitmq/data:/var/lib/rabbitmq #数据文件挂载
+      - /root/install/mall/rabbitmq/log:/var/log/rabbitmq #日志文件挂载
     ports:
       - 5672:5672
       - 15672:15672
   elasticsearch:
     image: elasticsearch:7.17.3
-    container_name: elasticsearch
+    container_name: beilv_agent_elasticsearch
     environment:
       - "cluster.name=elasticsearch" #设置集群名称为elasticsearch
       - "discovery.type=single-node" #以单一节点模式启动
@@ -53,7 +54,7 @@ services:
       - 9300:9300
   logstash:
     image: logstash:7.17.3
-    container_name: logstash
+    container_name: beilv_agent_logstash
     environment:
       - TZ=Asia/Shanghai
     volumes:
@@ -69,7 +70,7 @@ services:
       - 4563:4563
   kibana:
     image: kibana:7.17.3
-    container_name: kibana
+    container_name: beilv_agent_kibana
     links:
       - elasticsearch:es #可以用es这个域名访问elasticsearch服务
     depends_on:
@@ -80,14 +81,14 @@ services:
       - 5601:5601
   mongo:
     image: mongo:4
-    container_name: mongo
+    container_name: beilv_agent_mongo
     volumes:
       - /root/install/mall/mongo/db:/data/db #数据文件目录挂载
     ports:
       - 27017:27017
   minio:
     image: minio/minio
-    container_name: minio
+    container_name: beilv_agent_minio
     command: server /data --console-address ":9001" #指定数据目录及console运行端口启动
     volumes:
       - /root/install/mall/minio/data:/data #数据目录挂载
