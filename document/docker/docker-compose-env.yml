@@ -10,31 +10,31 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /mydata/mysql/data:/var/lib/mysql #数据文件目录挂载
-      - /mydata/mysql/conf:/etc/mysql #配置文件目录挂载
-      - /mydata/mysql/log:/var/log/mysql #日志文件目录挂载
+      - /root/install/mall/mysql/data:/var/lib/mysql #数据文件目录挂载
+      - /root/install/mall/mysql/conf:/etc/mysql #配置文件目录挂载
+      - /root/install/mall/mysql/log:/var/log/mysql #日志文件目录挂载
   redis:
     image: redis:7
     container_name: redis
     command: redis-server --appendonly yes
     volumes:
-      - /mydata/redis/data:/data #数据文件目录挂载
+      - /root/install/mall/redis/data:/data #数据文件目录挂载
     ports:
       - 6379:6379
   nginx:
     image: nginx:1.22
     container_name: nginx
     volumes:
-      - /mydata/nginx/conf:/etc/nginx #配置文件目录挂载
-      - /mydata/nginx/html:/usr/share/nginx/html #静态资源根目录挂载
-      - /mydata/nginx/logs:/var/log/nginx #日志文件目录挂载
+      - /root/install/mall/nginx/conf:/etc/nginx #配置文件目录挂载
+      - /root/install/mall/nginx/html:/usr/share/nginx/html #静态资源根目录挂载
+      - /root/install/mall/nginx/logs:/var/log/nginx #日志文件目录挂载
     ports:
       - 80:80
   rabbitmq:
     image: rabbitmq:3.9.11-management
     container_name: rabbitmq
     volumes:
-      - /mydata/rabbitmq/data:/var/lib/rabbitmq #数据文件目录挂载
+      - /root/install/mall/rabbitmq/data:/var/lib/rabbitmq #数据文件目录挂载
     ports:
       - 5672:5672
       - 15672:15672
@@ -46,8 +46,8 @@ services:
       - "discovery.type=single-node" #以单一节点模式启动
       - "ES_JAVA_OPTS=-Xms512m -Xmx1024m" #设置es使用的jvm内存大小
     volumes:
-      - /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins #插件文件目录挂载
-      - /mydata/elasticsearch/data:/usr/share/elasticsearch/data #数据文件目录挂载
+      - /root/install/mall/elasticsearch/plugins:/usr/share/elasticsearch/plugins #插件文件目录挂载
+      - /root/install/mall/elasticsearch/data:/usr/share/elasticsearch/data #数据文件目录挂载
     ports:
       - 9200:9200
       - 9300:9300
@@ -57,7 +57,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - /mydata/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf #配置文件挂载
+      - /root/install/mall/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf #配置文件挂载
     depends_on:
       - elasticsearch #kibana在elasticsearch启动之后再启动
     links:
@@ -82,7 +82,7 @@ services:
     image: mongo:4
     container_name: mongo
     volumes:
-      - /mydata/mongo/db:/data/db #数据文件目录挂载
+      - /root/install/mall/mongo/db:/data/db #数据文件目录挂载
     ports:
       - 27017:27017
   minio:
@@ -90,7 +90,7 @@ services:
     container_name: minio
     command: server /data --console-address ":9001" #指定数据目录及console运行端口启动
     volumes:
-      - /mydata/minio/data:/data #数据目录挂载
+      - /root/install/mall/minio/data:/data #数据目录挂载
     environment:
       - "MINIO_ROOT_USER=minioadmin"
       - "MINIO_ROOT_PASSWORD=minioadmin"
