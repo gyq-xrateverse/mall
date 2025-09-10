@@ -14,8 +14,10 @@ mybatis:
 
 jwt:
   tokenHeader: Authorization #JWT存储的请求头
-  secret: mall-portal-secret #JWT加解密使用的密钥
-  expiration: 604800 #JWT的超期限时间(60*60*24*7)
+  secret: ${JWT_SECRET:beilv-ai-mall-portal-secret-key-256-bits-change-in-production} #JWT加解密使用的密钥
+  expiration: 86400 #JWT的超期限时间(60*60*24)
+  refresh-expiration: 604800 #刷新token超期限时间(60*60*24*7)
+  issuer: beilv-ai
   tokenHead: 'Bearer '  #JWT负载中拿到开头
 
 secure:
@@ -35,6 +37,8 @@ secure:
       - /product/**
       - /brand/**
       - /alipay/**
+      - /api/auth/**
+      - /api/test/**
 
 springdoc:
   swagger-ui:
@@ -73,4 +77,35 @@ rabbitmq:
   queue:
     name:
       cancelOrder: cancelOrderQueue
+
+# 邮件配置
+mail:
+  from: ${MAIL_FROM:BEILV AI <noreply@beilv-ai.com>}
+  verification-code:
+    expire-minutes: 5
+    template: verification-code
+
+# 验证码配置
+verification-code:
+  length: 6 # 验证码长度
+  expire-minutes: 5 # 验证码有效期（分钟）
+  send-interval-seconds: 60 # 发送间隔（秒）
+  max-send-per-day: 10 # 每日最大发送次数
+  type: NUMERIC # 验证码类型：NUMERIC、LETTER、MIXED
+
+# OAuth2客户端配置
+oauth2:
+  client:
+    wechat:
+      app-id: ${WECHAT_APP_ID:your-wechat-app-id}
+      app-secret: ${WECHAT_APP_SECRET:your-wechat-app-secret}
+      redirect-uri: ${WECHAT_REDIRECT_URI:http://localhost:8085/api/auth/oauth2/callback/wechat}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+      client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+      redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8085/api/auth/oauth2/callback/google}
+  frontend:
+    base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+    auth-success-redirect: ${FRONTEND_AUTH_SUCCESS_REDIRECT:/auth/success}
+    auth-error-redirect: ${FRONTEND_AUTH_ERROR_REDIRECT:/auth/error}
 

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.portal.dao.UmsMemberExtMapper">
+    
+    <!-- 基础结果映射，需要根据实际的UmsMember字段调整 -->
+    <resultMap id="BaseResultMap" type="com.macro.mall.model.UmsMember">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="gender" jdbcType="INTEGER" property="gender"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="job" jdbcType="VARCHAR" property="job"/>
+        <result column="personalized_signature" jdbcType="VARCHAR" property="personalizedSignature"/>
+        <result column="source_type" jdbcType="INTEGER" property="sourceType"/>
+        <result column="integration" jdbcType="INTEGER" property="integration"/>
+        <result column="growth" jdbcType="INTEGER" property="growth"/>
+        <result column="luckey_count" jdbcType="INTEGER" property="luckeyCount"/>
+        <result column="history_integration" jdbcType="INTEGER" property="historyIntegration"/>
+        <!-- 扩展字段 -->
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="wechat_openid" jdbcType="VARCHAR" property="wechatOpenid"/>
+        <result column="google_id" jdbcType="VARCHAR" property="googleId"/>
+        <result column="register_type" jdbcType="TINYINT" property="registerType"/>
+        <result column="email_verified" jdbcType="TINYINT" property="emailVerified"/>
+        <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+        <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl"/>
+        <result column="account_status" jdbcType="TINYINT" property="accountStatus"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, username, password, nickname, phone, status, create_time, icon, gender, birthday, 
+        city, job, personalized_signature, source_type, integration, growth, luckey_count, 
+        history_integration, email, wechat_openid, google_id, register_type, email_verified, 
+        last_login_time, avatar_url, account_status
+    </sql>
+    
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_member
+        WHERE email = #{email,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_member
+        WHERE username = #{username,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <select id="selectByWechatOpenid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_member
+        WHERE wechat_openid = #{wechatOpenid,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <select id="selectByGoogleId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_member
+        WHERE google_id = #{googleId,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <update id="updateLastLoginTime">
+        UPDATE ums_member
+        SET last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <update id="updateAccountStatus">
+        UPDATE ums_member
+        SET account_status = #{accountStatus,jdbcType=TINYINT}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="findByEmail" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_member
+        WHERE email = #{email,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <select id="findByThirdPartyId" resultMap="BaseResultMap">
+        <![CDATA[
+        SELECT ]]><include refid="Base_Column_List"/><![CDATA[
+        FROM ums_member
+        WHERE ${providerField} = #{providerId,jdbcType=VARCHAR}
+          AND status = 1
+        ]]>
+    </select>
+    
+    <update id="updateThirdPartyInfo">
+        UPDATE ums_member
+        SET 
+            ${providerField} = #{providerId,jdbcType=VARCHAR},
+            <if test="email != null and email != ''">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar_url = #{avatar,jdbcType=VARCHAR},
+            </if>
+            register_type = #{registerType,jdbcType=TINYINT}
+        WHERE id = #{userId,jdbcType=BIGINT}
+    </update>
+    
+</mapper>

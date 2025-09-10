@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.portal.dao.UmsThirdPartyAuthMapper">
+    
+    <resultMap id="BaseResultMap" type="com.macro.mall.portal.domain.UmsThirdPartyAuth">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="member_id" jdbcType="BIGINT" property="memberId"/>
+        <result column="provider" jdbcType="TINYINT" property="provider"/>
+        <result column="third_party_id" jdbcType="VARCHAR" property="thirdPartyId"/>
+        <result column="third_party_name" jdbcType="VARCHAR" property="thirdPartyName"/>
+        <result column="third_party_avatar" jdbcType="VARCHAR" property="thirdPartyAvatar"/>
+        <result column="third_party_email" jdbcType="VARCHAR" property="thirdPartyEmail"/>
+        <result column="access_token" jdbcType="TEXT" property="accessToken"/>
+        <result column="refresh_token" jdbcType="TEXT" property="refreshToken"/>
+        <result column="token_expire_time" jdbcType="TIMESTAMP" property="tokenExpireTime"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, member_id, provider, third_party_id, third_party_name, third_party_avatar, 
+        third_party_email, access_token, refresh_token, token_expire_time, status, 
+        create_time, update_time
+    </sql>
+    
+    <insert id="insert" parameterType="com.macro.mall.portal.domain.UmsThirdPartyAuth">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO ums_third_party_auth (member_id, provider, third_party_id, third_party_name, 
+                                          third_party_avatar, third_party_email, access_token, 
+                                          refresh_token, token_expire_time, status, create_time, update_time)
+        VALUES (#{memberId,jdbcType=BIGINT}, #{provider,jdbcType=TINYINT}, #{thirdPartyId,jdbcType=VARCHAR}, 
+                #{thirdPartyName,jdbcType=VARCHAR}, #{thirdPartyAvatar,jdbcType=VARCHAR}, 
+                #{thirdPartyEmail,jdbcType=VARCHAR}, #{accessToken,jdbcType=VARCHAR}, 
+                #{refreshToken,jdbcType=VARCHAR}, #{tokenExpireTime,jdbcType=TIMESTAMP}, 
+                #{status,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM ums_third_party_auth WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <update id="updateByPrimaryKey" parameterType="com.macro.mall.portal.domain.UmsThirdPartyAuth">
+        UPDATE ums_third_party_auth
+        SET member_id = #{memberId,jdbcType=BIGINT},
+            provider = #{provider,jdbcType=TINYINT},
+            third_party_id = #{thirdPartyId,jdbcType=VARCHAR},
+            third_party_name = #{thirdPartyName,jdbcType=VARCHAR},
+            third_party_avatar = #{thirdPartyAvatar,jdbcType=VARCHAR},
+            third_party_email = #{thirdPartyEmail,jdbcType=VARCHAR},
+            access_token = #{accessToken,jdbcType=VARCHAR},
+            refresh_token = #{refreshToken,jdbcType=VARCHAR},
+            token_expire_time = #{tokenExpireTime,jdbcType=TIMESTAMP},
+            status = #{status,jdbcType=TINYINT},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <update id="updateByPrimaryKeySelective" parameterType="com.macro.mall.portal.domain.UmsThirdPartyAuth">
+        UPDATE ums_third_party_auth
+        <set>
+            <if test="memberId != null">
+                member_id = #{memberId,jdbcType=BIGINT},
+            </if>
+            <if test="provider != null">
+                provider = #{provider,jdbcType=TINYINT},
+            </if>
+            <if test="thirdPartyId != null">
+                third_party_id = #{thirdPartyId,jdbcType=VARCHAR},
+            </if>
+            <if test="thirdPartyName != null">
+                third_party_name = #{thirdPartyName,jdbcType=VARCHAR},
+            </if>
+            <if test="thirdPartyAvatar != null">
+                third_party_avatar = #{thirdPartyAvatar,jdbcType=VARCHAR},
+            </if>
+            <if test="thirdPartyEmail != null">
+                third_party_email = #{thirdPartyEmail,jdbcType=VARCHAR},
+            </if>
+            <if test="accessToken != null">
+                access_token = #{accessToken,jdbcType=VARCHAR},
+            </if>
+            <if test="refreshToken != null">
+                refresh_token = #{refreshToken,jdbcType=VARCHAR},
+            </if>
+            <if test="tokenExpireTime != null">
+                token_expire_time = #{tokenExpireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_third_party_auth
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="selectByMemberId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_third_party_auth
+        WHERE member_id = #{memberId,jdbcType=BIGINT}
+          AND status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectByProviderAndThirdPartyId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_third_party_auth
+        WHERE provider = #{provider,jdbcType=TINYINT}
+          AND third_party_id = #{thirdPartyId,jdbcType=VARCHAR}
+          AND status = 1
+    </select>
+    
+    <select id="selectByMemberIdAndProvider" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_third_party_auth
+        WHERE member_id = #{memberId,jdbcType=BIGINT}
+          AND provider = #{provider,jdbcType=TINYINT}
+          AND status = 1
+    </select>
+    
+    <delete id="deleteByMemberId">
+        DELETE FROM ums_third_party_auth WHERE member_id = #{memberId,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deleteByMemberIdAndProvider">
+        DELETE FROM ums_third_party_auth 
+        WHERE member_id = #{memberId,jdbcType=BIGINT} 
+          AND provider = #{provider,jdbcType=TINYINT}
+    </delete>
+    
+    <update id="updateTokenInfo">
+        UPDATE ums_third_party_auth
+        SET access_token = #{accessToken,jdbcType=VARCHAR},
+            refresh_token = #{refreshToken,jdbcType=VARCHAR},
+            token_expire_time = #{tokenExpireTime,jdbcType=TIMESTAMP},
+            update_time = NOW()
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+</mapper>

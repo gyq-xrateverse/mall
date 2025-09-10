@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证码邮件</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+        .code-container {
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .code {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1f2937;
+            letter-spacing: 4px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+        .code-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .expire-info {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .expire-info p {
+            margin: 0;
+            color: #92400e;
+            font-size: 14px;
+        }
+        .security-note {
+            background-color: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .security-note p {
+            margin: 0;
+            color: #047857;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f9fafb;
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .footer .company {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BEILV AI</h1>
+            <p>人工智能创作平台</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                您好！
+            </div>
+            
+            <div class="message">
+                您正在进行 <strong th:text="${type}"></strong> 操作，为确保账户安全，请使用以下验证码完成身份验证：
+            </div>
+            
+            <div class="code-container">
+                <div class="code-label">您的验证码</div>
+                <div class="code" th:text="${code}">123456</div>
+            </div>
+            
+            <div class="expire-info">
+                <p>
+                    <strong>⏰ 重要提醒：</strong>
+                    验证码有效期为 <span th:text="${expireMinutes}">5</span> 分钟，请尽快使用。
+                </p>
+            </div>
+            
+            <div class="security-note">
+                <p>
+                    <strong>🔐 安全提示：</strong>
+                    如果这不是您本人的操作，请忽略此邮件并检查账户安全。我们不会通过邮件、电话或短信向您索要验证码。
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p class="company">BEILV AI 团队</p>
+            <p>此邮件由系统自动发送，请勿回复</p>
+            <p>© 2025 BEILV AI. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

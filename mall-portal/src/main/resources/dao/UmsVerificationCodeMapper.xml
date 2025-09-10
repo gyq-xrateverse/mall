@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.portal.dao.UmsVerificationCodeMapper">
+    
+    <resultMap id="BaseResultMap" type="com.macro.mall.portal.domain.UmsVerificationCode">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="code_type" jdbcType="TINYINT" property="codeType"/>
+        <result column="used_status" jdbcType="TINYINT" property="usedStatus"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime"/>
+        <result column="used_time" jdbcType="TIMESTAMP" property="usedTime"/>
+        <result column="ip_address" jdbcType="VARCHAR" property="ipAddress"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, email, code, code_type, used_status, create_time, expire_time, used_time, ip_address
+    </sql>
+    
+    <insert id="insert" parameterType="com.macro.mall.portal.domain.UmsVerificationCode">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO ums_verification_codes (email, code, code_type, used_status, create_time, expire_time, ip_address)
+        VALUES (#{email,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{codeType,jdbcType=TINYINT}, 
+                #{usedStatus,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{expireTime,jdbcType=TIMESTAMP}, 
+                #{ipAddress,jdbcType=VARCHAR})
+    </insert>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        DELETE FROM ums_verification_codes WHERE id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <update id="updateByPrimaryKey" parameterType="com.macro.mall.portal.domain.UmsVerificationCode">
+        UPDATE ums_verification_codes
+        SET email = #{email,jdbcType=VARCHAR},
+            code = #{code,jdbcType=VARCHAR},
+            code_type = #{codeType,jdbcType=TINYINT},
+            used_status = #{usedStatus,jdbcType=TINYINT},
+            create_time = #{createTime,jdbcType=TIMESTAMP},
+            expire_time = #{expireTime,jdbcType=TIMESTAMP},
+            used_time = #{usedTime,jdbcType=TIMESTAMP},
+            ip_address = #{ipAddress,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_verification_codes
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="selectLatestByEmailAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_verification_codes
+        WHERE email = #{email,jdbcType=VARCHAR} 
+          AND code_type = #{codeType,jdbcType=TINYINT}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+    
+    <select id="selectByEmailCodeAndType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_verification_codes
+        WHERE email = #{email,jdbcType=VARCHAR}
+          AND code = #{code,jdbcType=VARCHAR}
+          AND code_type = #{codeType,jdbcType=TINYINT}
+    </select>
+    
+    <update id="markAsUsed">
+        UPDATE ums_verification_codes
+        SET used_status = 1, used_time = #{usedTime,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <select id="countTodaySent" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ums_verification_codes
+        WHERE email = #{email,jdbcType=VARCHAR}
+          AND create_time BETWEEN #{startTime,jdbcType=TIMESTAMP} AND #{endTime,jdbcType=TIMESTAMP}
+    </select>
+    
+    <delete id="deleteExpired">
+        DELETE FROM ums_verification_codes
+        WHERE expire_time &lt; #{expireTime,jdbcType=TIMESTAMP}
+    </delete>
+    
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_verification_codes
+        WHERE email = #{email,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+    
+</mapper>
