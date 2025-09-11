@@ -3,7 +3,7 @@ package com.macro.mall.portal.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 /**
  * 用户注册参数

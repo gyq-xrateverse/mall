@@ -1,6 +1,6 @@
 package com.macro.mall.portal.config;
 
-import com.macro.mall.portal.domain.QueueEnum;
+import com.macro.mall.portal.enums.QueueEnum;
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

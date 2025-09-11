@@ -1,18 +1,24 @@
 package com.macro.mall.portal.service.impl;
 
+import com.macro.mall.mapper.UmsMemberMapper;
+import com.macro.mall.model.UmsMember;
+import com.macro.mall.model.UmsMemberExample;
 import com.macro.mall.portal.service.TokenService;
-import com.macro.mall.portal.util.JwtTokenUtil;
+import com.macro.mall.security.util.PortalJwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Token服务实现类
+ * Portal模块Token服务实现类
+ * 使用专用的PortalJwtTokenUtil，支持完整的JWT功能
  * @author Claude
  * @since 2025-09-10
  */
@@ -21,25 +27,38 @@ import java.util.concurrent.TimeUnit;
 public class TokenServiceImpl implements TokenService {
     
     @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    @Qualifier("portalJwtTokenUtil")
+    private PortalJwtTokenUtil jwtTokenUtil;
     
     @Autowired
     private StringRedisTemplate redisTemplate;
     
-    private static final String TOKEN_BLACKLIST_PREFIX = "token_blacklist:";
-    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
+    @Autowired
+    private UmsMemberMapper memberMapper;
+    
+    private static final String TOKEN_BLACKLIST_PREFIX = "portal:token_blacklist:";
+    private static final String REFRESH_TOKEN_PREFIX = "portal:refresh_token:";
     
     @Override
     public String generateAccessToken(String username, Long userId) {
-        return jwtTokenUtil.generateTokenWithUserId(username, userId);
+        return jwtTokenUtil.generateAccessToken(username, userId);
     }
     
     @Override
     public String generateRefreshToken(String username) {
-        String refreshToken = jwtTokenUtil.generateRefreshToken(username);
+        // 需要先获取用户ID
+        UmsMember member = findMemberByUsername(username);
+        if (member == null) {
+            log.warn("User not found for username: {}", username);
+            return null;
+        }
+        
+        String refreshToken = jwtTokenUtil.generateRefreshToken(username, member.getId());
+        
         // 将刷新token存储到Redis中，设置过期时间
         String key = REFRESH_TOKEN_PREFIX + username;
         redisTemplate.opsForValue().set(key, refreshToken, 7, TimeUnit.DAYS);
+        
         return refreshToken;
     }
     
@@ -47,19 +66,40 @@ public class TokenServiceImpl implements TokenService {
     public Map<String, String> generateTokenPair(String username, Long userId) {
         Map<String, String> tokenPair = new HashMap<>();
         tokenPair.put("access_token", generateAccessToken(username, userId));
-        tokenPair.put("refresh_token", generateRefreshToken(username));
+        tokenPair.put("refresh_token", generateRefreshTokenWithUserId(username, userId));
         tokenPair.put("token_type", "Bearer");
         tokenPair.put("expires_in", "86400"); // 24小时
         return tokenPair;
     }
     
+    /**
+     * 使用已知的userId生成刷新token（避免重复查询数据库）
+     */
+    private String generateRefreshTokenWithUserId(String username, Long userId) {
+        String refreshToken = jwtTokenUtil.generateRefreshToken(username, userId);
+        
+        // 将刷新token存储到Redis中
+        String key = REFRESH_TOKEN_PREFIX + username;
+        redisTemplate.opsForValue().set(key, refreshToken, 7, TimeUnit.DAYS);
+        
+        return refreshToken;
+    }
+    
     @Override
     public String refreshAccessToken(String refreshToken) {
         try {
-            // 验证刷新token是否有效
-            String username = jwtTokenUtil.getUserNameFromToken(refreshToken);
-            if (username == null) {
+            // 验证刷新token
+            if (!jwtTokenUtil.validateRefreshToken(refreshToken)) {
                 log.warn("Invalid refresh token");
+                return null;
+            }
+            
+            // 从刷新token中提取用户信息
+            String username = jwtTokenUtil.getUsernameFromToken(refreshToken);
+            Long userId = jwtTokenUtil.getUserIdFromToken(refreshToken);
+            
+            if (username == null || userId == null) {
+                log.warn("Invalid refresh token: missing user info");
                 return null;
             }
             
@@ -72,9 +112,7 @@ public class TokenServiceImpl implements TokenService {
             }
             
             // 生成新的访问token
-            // 这里需要获取用户ID，可以考虑从refreshToken中获取或从数据库查询
-            // 暂时使用null，实际使用时需要完善
-            return jwtTokenUtil.generateToken(username);
+            return jwtTokenUtil.generateAccessToken(username, userId);
             
         } catch (Exception e) {
             log.error("Failed to refresh access token", e);
@@ -90,9 +128,8 @@ public class TokenServiceImpl implements TokenService {
                 return false;
             }
             
-            // 验证token格式和有效性
-            String username = jwtTokenUtil.getUserNameFromToken(token);
-            return username != null;
+            // 使用专用的验证方法
+            return jwtTokenUtil.validateAccessToken(token);
             
         } catch (Exception e) {
             log.error("Token validation failed", e);
@@ -103,7 +140,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String getUsernameFromToken(String token) {
         try {
-            return jwtTokenUtil.getUserNameFromToken(token);
+            return jwtTokenUtil.getUsernameFromToken(token);
         } catch (Exception e) {
             log.error("Failed to get username from token", e);
             return null;
@@ -113,6 +150,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public Long getUserIdFromToken(String token) {
         try {
+            // 直接从JWT claims中获取userId，无需Redis查询
             return jwtTokenUtil.getUserIdFromToken(token);
         } catch (Exception e) {
             log.error("Failed to get user ID from token", e);
@@ -149,6 +187,42 @@ public class TokenServiceImpl implements TokenService {
         } catch (Exception e) {
             log.error("Failed to check if token is revoked", e);
             return false;
+        }
+    }
+    
+    /**
+     * 检查token是否即将过期
+     */
+    public boolean isTokenExpiringSoon(String token) {
+        return jwtTokenUtil.isTokenExpiringSoon(token);
+    }
+    
+    /**
+     * 获取token中的用户类型
+     */
+    public String getUserTypeFromToken(String token) {
+        return jwtTokenUtil.getUserTypeFromToken(token);
+    }
+    
+    /**
+     * 获取token中的注册类型
+     */
+    public String getRegisterTypeFromToken(String token) {
+        return jwtTokenUtil.getRegisterTypeFromToken(token);
+    }
+    
+    /**
+     * 根据用户名查找用户
+     */
+    private UmsMember findMemberByUsername(String username) {
+        try {
+            UmsMemberExample example = new UmsMemberExample();
+            example.createCriteria().andUsernameEqualTo(username);
+            List<UmsMember> members = memberMapper.selectByExample(example);
+            return members.isEmpty() ? null : members.get(0);
+        } catch (Exception e) {
+            log.warn("Failed to find member by username: {}", username, e);
+            return null;
         }
     }
 }

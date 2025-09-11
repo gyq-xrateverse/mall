@@ -1,4 +1,4 @@
-package com.macro.mall.portal.domain.enums;
+package com.macro.mall.portal.enums;
 
 import lombok.Getter;
 import lombok.AllArgsConstructor;

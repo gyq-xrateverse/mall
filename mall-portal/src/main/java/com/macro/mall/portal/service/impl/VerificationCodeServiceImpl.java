@@ -1,7 +1,7 @@
 package com.macro.mall.portal.service.impl;
 
 import com.macro.mall.portal.config.VerificationCodeConfig;
-import com.macro.mall.portal.domain.enums.CodeType;
+import com.macro.mall.portal.enums.CodeType;
 import com.macro.mall.portal.service.MailService;
 import com.macro.mall.portal.service.VerificationCodeService;
 import lombok.extern.slf4j.Slf4j;

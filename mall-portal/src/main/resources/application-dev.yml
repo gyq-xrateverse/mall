@@ -51,6 +51,17 @@ logging:
     root: info
     com.macro.mall: debug
 
+management:
+  health:
+    rabbit:
+      enabled: false  # 禁用RabbitMQ健康检查
+    mail:
+      enabled: false  # 禁用邮件健康检查
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
 logstash:
   host: localhost
   enableInnerLog: false

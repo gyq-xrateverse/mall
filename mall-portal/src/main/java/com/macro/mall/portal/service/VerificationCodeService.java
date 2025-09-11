@@ -1,6 +1,6 @@
 package com.macro.mall.portal.service;
 
-import com.macro.mall.portal.domain.enums.CodeType;
+import com.macro.mall.portal.enums.CodeType;
 
 /**
  * 验证码服务接口

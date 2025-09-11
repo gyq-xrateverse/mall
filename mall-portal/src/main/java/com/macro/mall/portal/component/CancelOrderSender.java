@@ -1,6 +1,6 @@
 package com.macro.mall.portal.component;
 
-import com.macro.mall.portal.domain.QueueEnum;
+import com.macro.mall.portal.enums.QueueEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;

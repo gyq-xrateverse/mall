@@ -1,7 +1,7 @@
 package com.macro.mall.portal.service;
 
 import com.macro.mall.portal.domain.dto.OAuth2UserInfo;
-import com.macro.mall.portal.domain.dto.AuthTokenResult;
+import com.macro.mall.portal.dto.AuthTokenResult;
 
 public interface OAuth2Service {
     

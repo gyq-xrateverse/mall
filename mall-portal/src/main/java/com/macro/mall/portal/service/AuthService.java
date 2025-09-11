@@ -2,7 +2,7 @@ package com.macro.mall.portal.service;
 
 import com.macro.mall.portal.dto.*;
 import com.macro.mall.portal.domain.dto.OAuth2UserInfo;
-import com.macro.mall.portal.domain.enums.RegisterType;
+import com.macro.mall.portal.enums.RegisterType;
 
 /**
  * 认证服务接口

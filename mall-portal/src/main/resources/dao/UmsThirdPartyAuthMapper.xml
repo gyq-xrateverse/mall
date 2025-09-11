@@ -10,8 +10,8 @@
         <result column="third_party_name" jdbcType="VARCHAR" property="thirdPartyName"/>
         <result column="third_party_avatar" jdbcType="VARCHAR" property="thirdPartyAvatar"/>
         <result column="third_party_email" jdbcType="VARCHAR" property="thirdPartyEmail"/>
-        <result column="access_token" jdbcType="TEXT" property="accessToken"/>
-        <result column="refresh_token" jdbcType="TEXT" property="refreshToken"/>
+        <result column="access_token" jdbcType="LONGVARCHAR" property="accessToken"/>
+        <result column="refresh_token" jdbcType="LONGVARCHAR" property="refreshToken"/>
         <result column="token_expire_time" jdbcType="TIMESTAMP" property="tokenExpireTime"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>

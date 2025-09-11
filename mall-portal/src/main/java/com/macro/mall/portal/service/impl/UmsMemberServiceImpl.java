@@ -11,10 +11,12 @@ import com.macro.mall.model.UmsMemberLevelExample;
 import com.macro.mall.portal.domain.MemberDetails;
 import com.macro.mall.portal.service.UmsMemberCacheService;
 import com.macro.mall.portal.service.UmsMemberService;
-import com.macro.mall.security.util.JwtTokenUtil;
+import com.macro.mall.portal.service.TokenService;
+import com.macro.mall.security.util.PortalJwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,13 +44,16 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    @Qualifier("portalJwtTokenUtil")
+    private PortalJwtTokenUtil jwtTokenUtil;
     @Autowired
     private UmsMemberMapper memberMapper;
     @Autowired
     private UmsMemberLevelMapper memberLevelMapper;
     @Autowired
     private UmsMemberCacheService memberCacheService;
+    @Autowired
+    private TokenService tokenService;
     @Value("${redis.key.authCode}")
     private String REDIS_KEY_PREFIX_AUTH_CODE;
     @Value("${redis.expire.authCode}")
@@ -172,7 +177,10 @@ public class UmsMemberServiceImpl implements UmsMemberService {
             }
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            token = jwtTokenUtil.generateToken(userDetails);
+            
+            // 获取用户信息生成token
+            UmsMember member = getByUsername(username);
+            token = jwtTokenUtil.generateAccessToken(username, member.getId());
         } catch (AuthenticationException e) {
             LOGGER.warn("登录异常:{}", e.getMessage());
         }
@@ -181,7 +189,19 @@ public class UmsMemberServiceImpl implements UmsMemberService {
 
     @Override
     public String refreshToken(String token) {
-        return jwtTokenUtil.refreshHeadToken(token);
+        try {
+            // 从当前访问token中获取用户信息
+            String username = tokenService.getUsernameFromToken(token);
+            Long userId = tokenService.getUserIdFromToken(token);
+            
+            if (username != null && userId != null && tokenService.validateToken(token)) {
+                // 生成新的访问token
+                return tokenService.generateAccessToken(username, userId);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Token刷新失败: {}", e.getMessage());
+        }
+        return null;
     }
 
     //对输入的验证码进行校验

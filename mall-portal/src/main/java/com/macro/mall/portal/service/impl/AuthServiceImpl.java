@@ -4,10 +4,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.macro.mall.mapper.UmsMemberMapper;
 import com.macro.mall.model.UmsMember;
 import com.macro.mall.portal.dao.UmsMemberExtMapper;
-import com.macro.mall.portal.domain.enums.AccountStatus;
-import com.macro.mall.portal.domain.enums.CodeType;
-import com.macro.mall.portal.domain.enums.EmailVerifyStatus;
-import com.macro.mall.portal.domain.enums.RegisterType;
+import com.macro.mall.portal.enums.AccountStatus;
+import com.macro.mall.portal.enums.CodeType;
+import com.macro.mall.portal.enums.EmailVerifyStatus;
+import com.macro.mall.portal.enums.RegisterType;
 import com.macro.mall.portal.domain.dto.OAuth2UserInfo;
 import com.macro.mall.portal.dto.*;
 import com.macro.mall.portal.service.AuthService;
@@ -305,14 +305,14 @@ public class AuthServiceImpl implements AuthService {
                 updateLastLoginTime(existingMember.getId());
                 
                 // 生成Token
-                Map<String, String> tokens = tokenService.generateTokens(existingMember.getId());
+                Map<String, String> tokens = tokenService.generateTokenPair(existingMember.getUsername(), existingMember.getId());
                 
                 return AuthTokenResult.builder()
-                        .accessToken(tokens.get("accessToken"))
-                        .refreshToken(tokens.get("refreshToken"))
-                        .userId(existingMember.getId())
-                        .username(existingMember.getUsername())
-                        .nickname(existingMember.getNickname())
+                        .accessToken(tokens.get("access_token"))
+                        .refreshToken(tokens.get("refresh_token"))
+                        .tokenType("Bearer")
+                        .expiresIn(86400L)
+                        .userInfo(buildUserInfoResult(existingMember))
                         .build();
             } else {
                 // 3. 新用户，创建账户
@@ -320,14 +320,14 @@ public class AuthServiceImpl implements AuthService {
                 log.info("创建新用户成功，用户ID: {}", newMember.getId());
                 
                 // 生成Token
-                Map<String, String> tokens = tokenService.generateTokens(newMember.getId());
+                Map<String, String> tokens = tokenService.generateTokenPair(newMember.getUsername(), newMember.getId());
                 
                 return AuthTokenResult.builder()
-                        .accessToken(tokens.get("accessToken"))
-                        .refreshToken(tokens.get("refreshToken"))
-                        .userId(newMember.getId())
-                        .username(newMember.getUsername())
-                        .nickname(newMember.getNickname())
+                        .accessToken(tokens.get("access_token"))
+                        .refreshToken(tokens.get("refresh_token"))
+                        .tokenType("Bearer")
+                        .expiresIn(86400L)
+                        .userInfo(buildUserInfoResult(newMember))
                         .build();
             }
             
@@ -377,7 +377,7 @@ public class AuthServiceImpl implements AuthService {
         member.setPassword(passwordEncoder.encode("oauth2_user_" + System.currentTimeMillis()));
         
         // 设置状态
-        member.setStatus(AccountStatus.ACTIVE.getCode());
+        member.setStatus(AccountStatus.NORMAL.getCode());
         member.setCreateTime(new Date());
         
         // 保存基本信息

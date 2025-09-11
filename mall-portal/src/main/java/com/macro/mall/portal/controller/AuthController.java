@@ -4,9 +4,11 @@ import com.macro.mall.common.api.CommonResult;
 import com.macro.mall.portal.dto.*;
 import com.macro.mall.portal.service.AuthService;
 import com.macro.mall.portal.service.OAuth2Service;
+import com.macro.mall.portal.service.TokenService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import com.macro.mall.portal.config.OAuth2Properties;
 import com.macro.mall.portal.domain.dto.OAuth2UserInfo;
-import com.macro.mall.portal.util.JwtTokenUtil;
+import com.macro.mall.security.util.PortalJwtTokenUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,10 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -45,7 +47,11 @@ public class AuthController {
     private OAuth2Properties oauth2Properties;
     
     @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    @Qualifier("portalJwtTokenUtil")
+    private PortalJwtTokenUtil jwtTokenUtil;
+    
+    @Autowired
+    private TokenService tokenService;
     
     @Value("${jwt.tokenHead}")
     private String tokenHead;
@@ -138,12 +144,12 @@ public class AuthController {
         try {
             String token = getTokenFromRequest(request);
             if (token == null) {
-                return CommonResult.unauthorized("请先登录");
+                return CommonResult.failed("请先登录");
             }
             
-            Long userId = jwtTokenUtil.getUserIdFromToken(token);
+            Long userId = tokenService.getUserIdFromToken(token);
             if (userId == null) {
-                return CommonResult.unauthorized("Token无效");
+                return CommonResult.failed("Token无效");
             }
             
             UserInfoResult userInfo = authService.getUserInfo(userId);
@@ -258,9 +264,9 @@ public class AuthController {
                     oauth2Properties.getFrontend().getAuthSuccessRedirect(),
                     tokenResult.getAccessToken(),
                     tokenResult.getRefreshToken(),
-                    tokenResult.getUserId());
+                    tokenResult.getUserInfo().getId());
             
-            log.info("微信OAuth2登录成功，用户ID: {}", tokenResult.getUserId());
+            log.info("微信OAuth2登录成功，用户ID: {}", tokenResult.getUserInfo().getId());
             response.sendRedirect(successUrl);
             
         } catch (Exception e) {
@@ -293,9 +299,9 @@ public class AuthController {
                     oauth2Properties.getFrontend().getAuthSuccessRedirect(),
                     tokenResult.getAccessToken(),
                     tokenResult.getRefreshToken(),
-                    tokenResult.getUserId());
+                    tokenResult.getUserInfo().getId());
             
-            log.info("Google OAuth2登录成功，用户ID: {}", tokenResult.getUserId());
+            log.info("Google OAuth2登录成功，用户ID: {}", tokenResult.getUserInfo().getId());
             response.sendRedirect(successUrl);
             
         } catch (Exception e) {
