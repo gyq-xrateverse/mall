@@ -1,0 +1,124 @@
+server:
+  port: 8086
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    druid:
+      initial-size: 1
+      min-idle: 1
+      max-active: 5
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 1
+      password: 
+      timeout: 300ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1
+          max-idle: 8
+          min-idle: 0
+  
+  mail:
+    host: localhost
+    port: 25
+    username: test@example.com
+    password: testpassword
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+    test-connection: false
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# JWT配置
+jwt:
+  tokenHeader: Authorization
+  secret: test-jwt-secret-key-for-unit-testing
+  expiration: 3600  # 1小时
+  refresh-expiration: 7200  # 2小时
+  issuer: mall-portal-test
+  tokenHead: 'Bearer '
+
+# Redis Key配置
+redis:
+  database: mall-test
+  key:
+    authCode: 'ums:test:authCode'
+    member: 'ums:test:member'
+  expire:
+    authCode: 5 # 验证码超期时间(分钟)
+    common: 3600 # 1小时
+
+# 邮件配置
+mail:
+  from: Test Mall <test@mall.com>
+  from-name: Test Mall
+  from-address: test@mall.com
+  verification-code:
+    expire-minutes: 5
+    template: verification-code
+  async-enabled: false
+  retry-count: 1
+  timeout-seconds: 10
+
+# 验证码配置
+verification-code:
+  length: 6
+  expire-minutes: 5
+  send-interval-seconds: 10  # 测试环境缩短间隔时间
+  max-send-per-day: 100  # 测试环境增加发送次数
+  type: NUMERIC
+
+# OAuth2配置
+oauth2:
+  client:
+    wechat:
+      app-id: test-wechat-app-id
+      app-secret: test-wechat-app-secret
+      redirect-uri: http://localhost:8086/api/auth/oauth2/callback/wechat
+    google:
+      client-id: test-google-client-id
+      client-secret: test-google-client-secret
+      redirect-uri: http://localhost:8086/api/auth/oauth2/callback/google
+  frontend:
+    base-url: http://localhost:3000
+    auth-success-redirect: /auth/success
+    auth-error-redirect: /auth/error
+
+# 日志配置
+logging:
+  level:
+    root: info
+    com.macro.mall.portal: debug
+    org.springframework.mail: debug
+    org.springframework.security: debug
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 测试配置
+test:
+  mock-email-service: true
+  skip-email-sending: true
+  use-in-memory-redis: false  # 如果需要使用内存Redis可以设置为true

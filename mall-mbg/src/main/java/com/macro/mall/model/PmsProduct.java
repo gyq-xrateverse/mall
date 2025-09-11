@@ -120,6 +120,32 @@ public class PmsProduct implements Serializable {
     @Schema(title = "移动端网页详情")
     private String detailMobileHtml;
 
+    // ==================== 白鹿AI平台扩展字段 ====================
+    
+    @Schema(title = "商品类型：1-普通商品，2-积分商品，3-套餐商品")
+    private Integer productType;
+    
+    @Schema(title = "积分数量（积分商品时使用）")
+    private Integer creditAmount;
+    
+    @Schema(title = "套餐周期（天）")
+    private Integer subscriptionPeriod;
+    
+    @Schema(title = "每日积分额度")
+    private Integer dailyCredits;
+    
+    @Schema(title = "总积分额度")
+    private Integer totalCredits;
+    
+    @Schema(title = "最大并发任务数")
+    private Integer maxConcurrentTasks;
+    
+    @Schema(title = "任务优先级：0-普通，1-高，2-最高")
+    private Integer priorityLevel;
+    
+    @Schema(title = "套餐特性配置JSON")
+    private String features;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -458,6 +484,72 @@ public class PmsProduct implements Serializable {
         this.detailMobileHtml = detailMobileHtml;
     }
 
+    // ==================== 白鹿AI平台扩展字段的Getter/Setter ====================
+    
+    public Integer getProductType() {
+        return productType;
+    }
+
+    public void setProductType(Integer productType) {
+        this.productType = productType;
+    }
+
+    public Integer getCreditAmount() {
+        return creditAmount;
+    }
+
+    public void setCreditAmount(Integer creditAmount) {
+        this.creditAmount = creditAmount;
+    }
+
+    public Integer getSubscriptionPeriod() {
+        return subscriptionPeriod;
+    }
+
+    public void setSubscriptionPeriod(Integer subscriptionPeriod) {
+        this.subscriptionPeriod = subscriptionPeriod;
+    }
+
+    public Integer getDailyCredits() {
+        return dailyCredits;
+    }
+
+    public void setDailyCredits(Integer dailyCredits) {
+        this.dailyCredits = dailyCredits;
+    }
+
+    public Integer getTotalCredits() {
+        return totalCredits;
+    }
+
+    public void setTotalCredits(Integer totalCredits) {
+        this.totalCredits = totalCredits;
+    }
+
+    public Integer getMaxConcurrentTasks() {
+        return maxConcurrentTasks;
+    }
+
+    public void setMaxConcurrentTasks(Integer maxConcurrentTasks) {
+        this.maxConcurrentTasks = maxConcurrentTasks;
+    }
+
+    public Integer getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(Integer priorityLevel) {
+        this.priorityLevel = priorityLevel;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(String features) {
+        this.features = features;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -506,6 +598,14 @@ public class PmsProduct implements Serializable {
         sb.append(", detailDesc=").append(detailDesc);
         sb.append(", detailHtml=").append(detailHtml);
         sb.append(", detailMobileHtml=").append(detailMobileHtml);
+        sb.append(", productType=").append(productType);
+        sb.append(", creditAmount=").append(creditAmount);
+        sb.append(", subscriptionPeriod=").append(subscriptionPeriod);
+        sb.append(", dailyCredits=").append(dailyCredits);
+        sb.append(", totalCredits=").append(totalCredits);
+        sb.append(", maxConcurrentTasks=").append(maxConcurrentTasks);
+        sb.append(", priorityLevel=").append(priorityLevel);
+        sb.append(", features=").append(features);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

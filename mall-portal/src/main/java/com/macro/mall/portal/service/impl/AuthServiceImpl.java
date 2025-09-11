@@ -148,6 +148,52 @@ public class AuthServiceImpl implements AuthService {
     }
     
     @Override
+    public AuthTokenResult loginWithEmailCode(EmailCodeLoginParam param) {
+        log.info("开始邮箱验证码登录: {}", param.getEmail());
+        
+        // 1. 验证邮箱验证码
+        CodeType codeType = CodeType.LOGIN; // 登录验证码类型
+        boolean codeValid = verificationCodeService.verifyCode(param.getEmail(), param.getVerificationCode(), codeType);
+        if (!codeValid) {
+            throw new RuntimeException("验证码无效或已过期");
+        }
+        
+        // 2. 查找用户
+        UmsMember member = findMemberByEmail(param.getEmail());
+        
+        if (member == null) {
+            // 3. 用户不存在，创建新用户
+            log.info("用户不存在，创建新账户: {}", param.getEmail());
+            member = createEmailCodeUser(param.getEmail());
+        } else {
+            // 4. 用户存在，检查账户状态
+            log.info("用户已存在，直接登录: {}", param.getEmail());
+            Integer accountStatus = getAccountStatus(member);
+            if (!AccountStatus.NORMAL.getCode().equals(accountStatus)) {
+                throw new RuntimeException("账户已被冻结或禁用");
+            }
+            // 更新最后登录时间
+            updateLastLoginTime(member.getId());
+        }
+        
+        // 5. 生成Token
+        Map<String, String> tokenPair = tokenService.generateTokenPair(member.getUsername(), member.getId());
+        
+        // 6. 构建用户信息
+        UserInfoResult userInfo = buildUserInfoResult(member);
+        
+        log.info("邮箱验证码登录成功: userId={}, email={}", member.getId(), param.getEmail());
+        
+        return AuthTokenResult.builder()
+                .accessToken(tokenPair.get("access_token"))
+                .refreshToken(tokenPair.get("refresh_token"))
+                .tokenType("Bearer")
+                .expiresIn(86400L)
+                .userInfo(userInfo)
+                .build();
+    }
+    
+    @Override
     public boolean sendVerificationCode(VerificationCodeParam param) {
         CodeType codeType = CodeType.fromCode(param.getCodeType());
         return verificationCodeService.sendCode(param.getEmail(), codeType);
@@ -259,6 +305,71 @@ public class AuthServiceImpl implements AuthService {
         }
     }
     
+    /**
+     * 创建邮箱验证码登录用户
+     */
+    private UmsMember createEmailCodeUser(String email) {
+        UmsMember member = new UmsMember();
+        
+        // 生成唯一用户名（使用邮箱前缀）
+        String username = generateUniqueUsernameFromEmail(email);
+        member.setUsername(username);
+        member.setNickname(username); // 默认昵称为用户名
+        
+        // 邮箱验证码登录不需要密码，设置一个随机的
+        member.setPassword(passwordEncoder.encode("email_code_user_" + System.currentTimeMillis()));
+        
+        // 设置状态
+        member.setStatus(AccountStatus.NORMAL.getCode());
+        member.setCreateTime(new Date());
+        
+        // 设置扩展字段
+        try {
+            member.getClass().getMethod("setEmail", String.class).invoke(member, email);
+            member.getClass().getMethod("setRegisterType", Integer.class).invoke(member, RegisterType.EMAIL.getCode());
+            member.getClass().getMethod("setEmailVerified", Integer.class).invoke(member, EmailVerifyStatus.VERIFIED.getCode());
+            member.getClass().getMethod("setAccountStatus", Integer.class).invoke(member, AccountStatus.NORMAL.getCode());
+            member.getClass().getMethod("setLastLoginTime", Date.class).invoke(member, new Date());
+        } catch (Exception e) {
+            log.warn("设置用户扩展字段失败，可能需要先运行数据库扩展脚本", e);
+        }
+        
+        // 插入用户
+        int result = memberMapper.insert(member);
+        if (result <= 0) {
+            throw new RuntimeException("创建用户失败");
+        }
+        
+        log.info("邮箱验证码登录用户创建成功: userId={}, email={}, username={}", member.getId(), email, username);
+        return member;
+    }
+    
+    /**
+     * 根据邮箱生成唯一用户名
+     */
+    private String generateUniqueUsernameFromEmail(String email) {
+        // 获取邮箱前缀作为基础用户名
+        String baseUsername = email.split("@")[0];
+        
+        // 清理用户名，只保留字母数字和下划线
+        baseUsername = baseUsername.replaceAll("[^a-zA-Z0-9_]", "_");
+        
+        // 如果用户名太短，添加后缀
+        if (baseUsername.length() < 3) {
+            baseUsername = "user_" + baseUsername;
+        }
+        
+        // 确保用户名唯一
+        String username = baseUsername;
+        int counter = 1;
+        while (isUsernameExists(username)) {
+            username = baseUsername + "_" + counter;
+            counter++;
+        }
+        
+        return username;
+    }
+
     /**
      * 构建用户信息结果
      */

@@ -26,6 +26,14 @@ public interface AuthService {
     AuthTokenResult login(AuthLoginParam param);
     
     /**
+     * 邮箱验证码登录
+     * 如果邮箱对应的账号不存在会自动创建，如果存在则直接登录
+     * @param param 邮箱验证码登录参数
+     * @return 认证Token结果
+     */
+    AuthTokenResult loginWithEmailCode(EmailCodeLoginParam param);
+    
+    /**
      * 发送验证码
      * @param param 验证码请求参数
      * @return 是否发送成功

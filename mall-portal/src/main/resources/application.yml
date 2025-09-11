@@ -1,3 +1,6 @@
+server:
+  port: 8085
+
 spring:
   application:
     name: mall-portal
@@ -6,6 +9,38 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  # Spring Mail 配置 - 自动适配所有邮件服务商
+  mail:
+    # 基础配置 - 通过环境变量自动适配
+    host: ${MAIL_HOST:smtp.exmail.qq.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:vcode@xrateverse.com}
+    password: ${MAIL_PASSWORD:NNyqSi67bLuGLzpv}
+    protocol: ${MAIL_PROTOCOL:smtps}
+    default-encoding: UTF-8
+    test-connection: false
+
+    # 高级配置 - 兼容所有邮件服务商
+    properties:
+      mail:
+        debug: ${MAIL_DEBUG:false}
+        smtp:
+          auth: true
+          timeout: ${MAIL_TIMEOUT_SECONDS:30}000
+          connectiontimeout: ${MAIL_TIMEOUT_SECONDS:30}000
+          writetimeout: ${MAIL_TIMEOUT_SECONDS:30}000
+          # SSL/TLS 配置 - 自动适配
+          ssl:
+            enable: ${MAIL_SSL_ENABLE:true}
+            trust: "*"
+          starttls:
+            enable: ${MAIL_STARTTLS_ENABLE:false}
+            required: ${MAIL_STARTTLS_REQUIRED:false}
+          # SSL Socket Factory (适用于465端口)
+          socketFactory:
+            class: ${MAIL_SOCKET_FACTORY_CLASS:javax.net.ssl.SSLSocketFactory}
+            port: ${MAIL_PORT:465}
+            fallback: false
 
 mybatis:
   mapper-locations:
@@ -78,12 +113,108 @@ rabbitmq:
     name:
       cancelOrder: cancelOrderQueue
 
-# 邮件配置
+# 邮件配置 - 支持所有主流邮件服务商
 mail:
-  from: ${MAIL_FROM:BEILV AI <noreply@beilv-ai.com>}
+  from: ${MAIL_FROM:Xrateverse <vcode@xrateverse.com>}
+  from-name: ${MAIL_FROM_NAME:Xrateverse}
+  from-address: ${MAIL_FROM_ADDRESS:vcode@xrateverse.com}
+  debug: ${MAIL_DEBUG:false}
   verification-code:
     expire-minutes: 5
     template: verification-code
+  # 邮件发送配置
+  async-enabled: ${MAIL_ASYNC_ENABLED:false}
+  retry-count: ${MAIL_RETRY_COUNT:3}
+  timeout-seconds: ${MAIL_TIMEOUT_SECONDS:30}
+
+
+# 邮件服务商预设配置
+mail-providers:
+  # 腾讯企业邮箱 (推荐)
+  tencent-exmail:
+    host: smtp.exmail.qq.com
+    port: 465
+    protocol: smtps
+    ssl-enable: true
+    starttls-enable: false
+    socket-factory-class: javax.net.ssl.SSLSocketFactory
+    description: "腾讯企业邮箱 - 稳定可靠"
+
+  # QQ邮箱
+  qq:
+    host: smtp.qq.com
+    port: 587
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: true
+    starttls-required: true
+    description: "QQ邮箱 - 个人用户"
+
+  # 网易邮箱
+  netease-163:
+    host: smtp.163.com
+    port: 25
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: false
+    description: "网易163邮箱 - 简单配置"
+
+  # 网易企业邮箱
+  netease-qiye:
+    host: smtp.ym.163.com
+    port: 994
+    protocol: smtps
+    ssl-enable: true
+    starttls-enable: false
+    socket-factory-class: javax.net.ssl.SSLSocketFactory
+    description: "网易企业邮箱"
+
+  # Gmail (国外)
+  gmail:
+    host: smtp.gmail.com
+    port: 587
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: true
+    starttls-required: true
+    description: "Gmail - 需要应用专用密码"
+
+  # Outlook/Hotmail
+  outlook:
+    host: smtp-mail.outlook.com
+    port: 587
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: true
+    starttls-required: true
+    description: "Outlook/Hotmail邮箱"
+
+  # 阿里云邮件推送
+  aliyun:
+    host: smtpdm.aliyun.com
+    port: 25
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: false
+    description: "阿里云邮件推送服务"
+
+  # 新浪邮箱
+  sina:
+    host: smtp.sina.com
+    port: 25
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: false
+    description: "新浪邮箱"
+
+  # 搜狐邮箱
+  sohu:
+    host: smtp.sohu.com
+    port: 25
+    protocol: smtp
+    ssl-enable: false
+    starttls-enable: false
+    description: "搜狐邮箱"
 
 # 验证码配置
 verification-code:

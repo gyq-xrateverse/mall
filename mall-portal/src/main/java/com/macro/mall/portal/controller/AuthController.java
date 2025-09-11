@@ -82,6 +82,19 @@ public class AuthController {
         }
     }
     
+    @Operation(summary = "邮箱验证码登录", description = "使用邮箱验证码登录，如果账号不存在会自动创建")
+    @PostMapping("/login-with-code")
+    public CommonResult<AuthTokenResult> loginWithEmailCode(@Valid @RequestBody EmailCodeLoginParam param) {
+        try {
+            AuthTokenResult result = authService.loginWithEmailCode(param);
+            log.info("邮箱验证码登录成功: {}", param.getEmail());
+            return CommonResult.success(result);
+        } catch (Exception e) {
+            log.error("邮箱验证码登录失败: {}", param.getEmail(), e);
+            return CommonResult.failed(e.getMessage());
+        }
+    }
+    
     @Operation(summary = "发送验证码", description = "向指定邮箱发送验证码")
     @PostMapping("/send-code")
     public CommonResult<String> sendVerificationCode(@Valid @RequestBody VerificationCodeParam param) {

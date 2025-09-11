@@ -1,0 +1,17 @@
+需要更新以下文件中的真实QQ邮箱授权码：
+
+1. 更新 .env 文件：
+   MAIL_PASSWORD=你的真实16位授权码
+
+2. 或者直接更新 application-dev.yml：
+   password: 你的真实16位授权码
+
+当前配置文件中的 "你的QQ邮箱授权码" 需要替换为从QQ邮箱获取的真实授权码。
+
+QQ邮箱授权码获取步骤：
+1. 登录 https://mail.qq.com
+2. 设置 → 账户
+3. 找到 "POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务"
+4. 开启 "IMAP/SMTP服务"
+5. 点击"生成授权码"，验证手机号
+6. 获得16位授权码，如：abcdgefhijklmnop

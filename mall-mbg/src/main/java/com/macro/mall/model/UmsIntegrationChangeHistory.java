@@ -26,6 +26,14 @@ public class UmsIntegrationChangeHistory implements Serializable {
     @Schema(title = "积分来源：0->购物；1->管理员修改")
     private Integer sourceType;
 
+    // ==================== 白鹿AI平台扩展字段 ====================
+    
+    @Schema(title = "积分类型：1-免费积分，2-永久积分")
+    private Integer creditType;
+    
+    @Schema(title = "业务ID（如AI任务ID）")
+    private String businessId;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -92,6 +100,24 @@ public class UmsIntegrationChangeHistory implements Serializable {
         this.sourceType = sourceType;
     }
 
+    // ==================== 白鹿AI平台扩展字段的Getter/Setter ====================
+    
+    public Integer getCreditType() {
+        return creditType;
+    }
+
+    public void setCreditType(Integer creditType) {
+        this.creditType = creditType;
+    }
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -106,6 +132,8 @@ public class UmsIntegrationChangeHistory implements Serializable {
         sb.append(", operateMan=").append(operateMan);
         sb.append(", operateNote=").append(operateNote);
         sb.append(", sourceType=").append(sourceType);
+        sb.append(", creditType=").append(creditType);
+        sb.append(", businessId=").append(businessId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

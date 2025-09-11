@@ -136,6 +136,26 @@ public class OmsOrder implements Serializable {
     @Schema(title = "修改时间")
     private Date modifyTime;
 
+    // ==================== 白鹿AI平台扩展字段 ====================
+    
+    @Schema(title = "套餐开始日期")
+    private Date subscriptionStartDate;
+    
+    @Schema(title = "套餐结束日期")
+    private Date subscriptionEndDate;
+    
+    @Schema(title = "订阅状态：0-待生效，1-有效，2-过期，3-已取消")
+    private Integer subscriptionStatus;
+    
+    @Schema(title = "是否自动续费：0-否，1-是")
+    private Integer autoRenew;
+    
+    @Schema(title = "订单类型：0-普通商品，1-套餐订单，2-积分充值订单")
+    private Integer businessOrderType;
+    
+    @Schema(title = "业务类型：0-商品购买，1-套餐订阅，2-积分充值，3-套餐续费")
+    private Integer businessType;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -490,6 +510,56 @@ public class OmsOrder implements Serializable {
         this.modifyTime = modifyTime;
     }
 
+    // ==================== 白鹿AI平台扩展字段的Getter/Setter ====================
+    
+    public Date getSubscriptionStartDate() {
+        return subscriptionStartDate;
+    }
+
+    public void setSubscriptionStartDate(Date subscriptionStartDate) {
+        this.subscriptionStartDate = subscriptionStartDate;
+    }
+
+    public Date getSubscriptionEndDate() {
+        return subscriptionEndDate;
+    }
+
+    public void setSubscriptionEndDate(Date subscriptionEndDate) {
+        this.subscriptionEndDate = subscriptionEndDate;
+    }
+
+    public Integer getSubscriptionStatus() {
+        return subscriptionStatus;
+    }
+
+    public void setSubscriptionStatus(Integer subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+    public Integer getAutoRenew() {
+        return autoRenew;
+    }
+
+    public void setAutoRenew(Integer autoRenew) {
+        this.autoRenew = autoRenew;
+    }
+
+    public Integer getBusinessOrderType() {
+        return businessOrderType;
+    }
+
+    public void setBusinessOrderType(Integer businessOrderType) {
+        this.businessOrderType = businessOrderType;
+    }
+
+    public Integer getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(Integer businessType) {
+        this.businessType = businessType;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -540,6 +610,12 @@ public class OmsOrder implements Serializable {
         sb.append(", receiveTime=").append(receiveTime);
         sb.append(", commentTime=").append(commentTime);
         sb.append(", modifyTime=").append(modifyTime);
+        sb.append(", subscriptionStartDate=").append(subscriptionStartDate);
+        sb.append(", subscriptionEndDate=").append(subscriptionEndDate);
+        sb.append(", subscriptionStatus=").append(subscriptionStatus);
+        sb.append(", autoRenew=").append(autoRenew);
+        sb.append(", businessOrderType=").append(businessOrderType);
+        sb.append(", businessType=").append(businessType);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

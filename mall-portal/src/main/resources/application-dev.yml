@@ -1,6 +1,3 @@
-server:
-  port: 8085
-
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
@@ -32,19 +29,7 @@ spring:
     virtual-host: /mall
     username: mall
     password: mall
-  mail:
-    host: smtp.qq.com
-    port: 587
-    username: ${MAIL_USERNAME:your-email@qq.com}
-    password: ${MAIL_PASSWORD:your-app-password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-    default-encoding: UTF-8
+
 
 logging:
   level:
@@ -74,3 +59,4 @@ alipay:
   returnUrl: http://localhost:8060/#/pages/money/paySuccess
   notifyUrl:
 
+MAIL_DEBUG: true
