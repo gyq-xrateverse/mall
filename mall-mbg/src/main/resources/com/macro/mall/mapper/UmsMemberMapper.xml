@@ -21,6 +21,25 @@
     <result column="growth" jdbcType="INTEGER" property="growth" />
     <result column="luckey_count" jdbcType="INTEGER" property="luckeyCount" />
     <result column="history_integration" jdbcType="INTEGER" property="historyIntegration" />
+    <!-- 白鹿AI平台扩展字段 - 用户认证相关 -->
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="wechat_openid" jdbcType="VARCHAR" property="wechatOpenid" />
+    <result column="google_id" jdbcType="VARCHAR" property="googleId" />
+    <result column="register_type" jdbcType="TINYINT" property="registerType" />
+    <result column="email_verified" jdbcType="TINYINT" property="emailVerified" />
+    <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl" />
+    <result column="account_status" jdbcType="TINYINT" property="accountStatus" />
+    <!-- 白鹿AI平台扩展字段 - 积分系统相关 -->
+    <result column="free_daily_credits" jdbcType="INTEGER" property="freeDailyCredits" />
+    <result column="used_today_free" jdbcType="INTEGER" property="usedTodayFree" />
+    <result column="last_reset_date" jdbcType="DATE" property="lastResetDate" />
+    <!-- 白鹿AI平台扩展字段 - 套餐相关 -->
+    <result column="current_subscription_id" jdbcType="BIGINT" property="currentSubscriptionId" />
+    <result column="subscription_level" jdbcType="TINYINT" property="subscriptionLevel" />
+    <result column="daily_credits_limit" jdbcType="INTEGER" property="dailyCreditsLimit" />
+    <result column="daily_credits_used" jdbcType="INTEGER" property="dailyCreditsUsed" />
+    <result column="subscription_end_date" jdbcType="DATE" property="subscriptionEndDate" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -83,7 +102,11 @@
   <sql id="Base_Column_List">
     id, member_level_id, username, password, nickname, phone, status, create_time, icon, 
     gender, birthday, city, job, personalized_signature, source_type, integration, growth, 
-    luckey_count, history_integration
+    luckey_count, history_integration, 
+    <!-- 白鹿AI平台扩展字段 -->
+    email, wechat_openid, google_id, register_type, email_verified, last_login_time, avatar_url, account_status,
+    free_daily_credits, used_today_free, last_reset_date,
+    current_subscription_id, subscription_level, daily_credits_limit, daily_credits_used, subscription_end_date
   </sql>
   <select id="selectByExample" parameterType="com.macro.mall.model.UmsMemberExample" resultMap="BaseResultMap">
     select
@@ -124,13 +147,21 @@
       create_time, icon, gender, 
       birthday, city, job, personalized_signature, 
       source_type, integration, growth, 
-      luckey_count, history_integration)
+      luckey_count, history_integration, 
+      <!-- 白鹿AI平台扩展字段 -->
+      email, wechat_openid, google_id, register_type, email_verified, last_login_time, avatar_url, account_status,
+      free_daily_credits, used_today_free, last_reset_date,
+      current_subscription_id, subscription_level, daily_credits_limit, daily_credits_used, subscription_end_date)
     values (#{memberLevelId,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
       #{nickname,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{icon,jdbcType=VARCHAR}, #{gender,jdbcType=INTEGER}, 
       #{birthday,jdbcType=DATE}, #{city,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{personalizedSignature,jdbcType=VARCHAR}, 
       #{sourceType,jdbcType=INTEGER}, #{integration,jdbcType=INTEGER}, #{growth,jdbcType=INTEGER}, 
-      #{luckeyCount,jdbcType=INTEGER}, #{historyIntegration,jdbcType=INTEGER})
+      #{luckeyCount,jdbcType=INTEGER}, #{historyIntegration,jdbcType=INTEGER}, 
+      <!-- 白鹿AI平台扩展字段值 -->
+      #{email,jdbcType=VARCHAR}, #{wechatOpenid,jdbcType=VARCHAR}, #{googleId,jdbcType=VARCHAR}, #{registerType,jdbcType=TINYINT}, #{emailVerified,jdbcType=TINYINT}, #{lastLoginTime,jdbcType=TIMESTAMP}, #{avatarUrl,jdbcType=VARCHAR}, #{accountStatus,jdbcType=TINYINT},
+      #{freeDailyCredits,jdbcType=INTEGER}, #{usedTodayFree,jdbcType=INTEGER}, #{lastResetDate,jdbcType=DATE},
+      #{currentSubscriptionId,jdbcType=BIGINT}, #{subscriptionLevel,jdbcType=TINYINT}, #{dailyCreditsLimit,jdbcType=INTEGER}, #{dailyCreditsUsed,jdbcType=INTEGER}, #{subscriptionEndDate,jdbcType=DATE})
   </insert>
   <insert id="insertSelective" parameterType="com.macro.mall.model.UmsMember">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -192,6 +223,55 @@
       <if test="historyIntegration != null">
         history_integration,
       </if>
+      <!-- 白鹿AI平台扩展字段 - insertSelective列名 -->
+      <if test="email != null">
+        email,
+      </if>
+      <if test="wechatOpenid != null">
+        wechat_openid,
+      </if>
+      <if test="googleId != null">
+        google_id,
+      </if>
+      <if test="registerType != null">
+        register_type,
+      </if>
+      <if test="emailVerified != null">
+        email_verified,
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time,
+      </if>
+      <if test="avatarUrl != null">
+        avatar_url,
+      </if>
+      <if test="accountStatus != null">
+        account_status,
+      </if>
+      <if test="freeDailyCredits != null">
+        free_daily_credits,
+      </if>
+      <if test="usedTodayFree != null">
+        used_today_free,
+      </if>
+      <if test="lastResetDate != null">
+        last_reset_date,
+      </if>
+      <if test="currentSubscriptionId != null">
+        current_subscription_id,
+      </if>
+      <if test="subscriptionLevel != null">
+        subscription_level,
+      </if>
+      <if test="dailyCreditsLimit != null">
+        daily_credits_limit,
+      </if>
+      <if test="dailyCreditsUsed != null">
+        daily_credits_used,
+      </if>
+      <if test="subscriptionEndDate != null">
+        subscription_end_date,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="memberLevelId != null">
@@ -247,6 +327,55 @@
       </if>
       <if test="historyIntegration != null">
         #{historyIntegration,jdbcType=INTEGER},
+      </if>
+      <!-- 白鹿AI平台扩展字段 - insertSelective值 -->
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatOpenid != null">
+        #{wechatOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="googleId != null">
+        #{googleId,jdbcType=VARCHAR},
+      </if>
+      <if test="registerType != null">
+        #{registerType,jdbcType=TINYINT},
+      </if>
+      <if test="emailVerified != null">
+        #{emailVerified,jdbcType=TINYINT},
+      </if>
+      <if test="lastLoginTime != null">
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="avatarUrl != null">
+        #{avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="accountStatus != null">
+        #{accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="freeDailyCredits != null">
+        #{freeDailyCredits,jdbcType=INTEGER},
+      </if>
+      <if test="usedTodayFree != null">
+        #{usedTodayFree,jdbcType=INTEGER},
+      </if>
+      <if test="lastResetDate != null">
+        #{lastResetDate,jdbcType=DATE},
+      </if>
+      <if test="currentSubscriptionId != null">
+        #{currentSubscriptionId,jdbcType=BIGINT},
+      </if>
+      <if test="subscriptionLevel != null">
+        #{subscriptionLevel,jdbcType=TINYINT},
+      </if>
+      <if test="dailyCreditsLimit != null">
+        #{dailyCreditsLimit,jdbcType=INTEGER},
+      </if>
+      <if test="dailyCreditsUsed != null">
+        #{dailyCreditsUsed,jdbcType=INTEGER},
+      </if>
+      <if test="subscriptionEndDate != null">
+        #{subscriptionEndDate,jdbcType=DATE},
       </if>
     </trim>
   </insert>
@@ -316,6 +445,55 @@
       <if test="row.historyIntegration != null">
         history_integration = #{row.historyIntegration,jdbcType=INTEGER},
       </if>
+      <!-- 白鹿AI平台扩展字段 - updateByExampleSelective -->
+      <if test="row.email != null">
+        email = #{row.email,jdbcType=VARCHAR},
+      </if>
+      <if test="row.wechatOpenid != null">
+        wechat_openid = #{row.wechatOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="row.googleId != null">
+        google_id = #{row.googleId,jdbcType=VARCHAR},
+      </if>
+      <if test="row.registerType != null">
+        register_type = #{row.registerType,jdbcType=TINYINT},
+      </if>
+      <if test="row.emailVerified != null">
+        email_verified = #{row.emailVerified,jdbcType=TINYINT},
+      </if>
+      <if test="row.lastLoginTime != null">
+        last_login_time = #{row.lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="row.avatarUrl != null">
+        avatar_url = #{row.avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="row.accountStatus != null">
+        account_status = #{row.accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="row.freeDailyCredits != null">
+        free_daily_credits = #{row.freeDailyCredits,jdbcType=INTEGER},
+      </if>
+      <if test="row.usedTodayFree != null">
+        used_today_free = #{row.usedTodayFree,jdbcType=INTEGER},
+      </if>
+      <if test="row.lastResetDate != null">
+        last_reset_date = #{row.lastResetDate,jdbcType=DATE},
+      </if>
+      <if test="row.currentSubscriptionId != null">
+        current_subscription_id = #{row.currentSubscriptionId,jdbcType=BIGINT},
+      </if>
+      <if test="row.subscriptionLevel != null">
+        subscription_level = #{row.subscriptionLevel,jdbcType=TINYINT},
+      </if>
+      <if test="row.dailyCreditsLimit != null">
+        daily_credits_limit = #{row.dailyCreditsLimit,jdbcType=INTEGER},
+      </if>
+      <if test="row.dailyCreditsUsed != null">
+        daily_credits_used = #{row.dailyCreditsUsed,jdbcType=INTEGER},
+      </if>
+      <if test="row.subscriptionEndDate != null">
+        subscription_end_date = #{row.subscriptionEndDate,jdbcType=DATE},
+      </if>
     </set>
     <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -341,7 +519,24 @@
       integration = #{row.integration,jdbcType=INTEGER},
       growth = #{row.growth,jdbcType=INTEGER},
       luckey_count = #{row.luckeyCount,jdbcType=INTEGER},
-      history_integration = #{row.historyIntegration,jdbcType=INTEGER}
+      history_integration = #{row.historyIntegration,jdbcType=INTEGER},
+      <!-- 白鹿AI平台扩展字段 - updateByExample -->
+      email = #{row.email,jdbcType=VARCHAR},
+      wechat_openid = #{row.wechatOpenid,jdbcType=VARCHAR},
+      google_id = #{row.googleId,jdbcType=VARCHAR},
+      register_type = #{row.registerType,jdbcType=TINYINT},
+      email_verified = #{row.emailVerified,jdbcType=TINYINT},
+      last_login_time = #{row.lastLoginTime,jdbcType=TIMESTAMP},
+      avatar_url = #{row.avatarUrl,jdbcType=VARCHAR},
+      account_status = #{row.accountStatus,jdbcType=TINYINT},
+      free_daily_credits = #{row.freeDailyCredits,jdbcType=INTEGER},
+      used_today_free = #{row.usedTodayFree,jdbcType=INTEGER},
+      last_reset_date = #{row.lastResetDate,jdbcType=DATE},
+      current_subscription_id = #{row.currentSubscriptionId,jdbcType=BIGINT},
+      subscription_level = #{row.subscriptionLevel,jdbcType=TINYINT},
+      daily_credits_limit = #{row.dailyCreditsLimit,jdbcType=INTEGER},
+      daily_credits_used = #{row.dailyCreditsUsed,jdbcType=INTEGER},
+      subscription_end_date = #{row.subscriptionEndDate,jdbcType=DATE}
     <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -403,6 +598,55 @@
       <if test="historyIntegration != null">
         history_integration = #{historyIntegration,jdbcType=INTEGER},
       </if>
+      <!-- 白鹿AI平台扩展字段 - updateByPrimaryKeySelective -->
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatOpenid != null">
+        wechat_openid = #{wechatOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="googleId != null">
+        google_id = #{googleId,jdbcType=VARCHAR},
+      </if>
+      <if test="registerType != null">
+        register_type = #{registerType,jdbcType=TINYINT},
+      </if>
+      <if test="emailVerified != null">
+        email_verified = #{emailVerified,jdbcType=TINYINT},
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="avatarUrl != null">
+        avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="accountStatus != null">
+        account_status = #{accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="freeDailyCredits != null">
+        free_daily_credits = #{freeDailyCredits,jdbcType=INTEGER},
+      </if>
+      <if test="usedTodayFree != null">
+        used_today_free = #{usedTodayFree,jdbcType=INTEGER},
+      </if>
+      <if test="lastResetDate != null">
+        last_reset_date = #{lastResetDate,jdbcType=DATE},
+      </if>
+      <if test="currentSubscriptionId != null">
+        current_subscription_id = #{currentSubscriptionId,jdbcType=BIGINT},
+      </if>
+      <if test="subscriptionLevel != null">
+        subscription_level = #{subscriptionLevel,jdbcType=TINYINT},
+      </if>
+      <if test="dailyCreditsLimit != null">
+        daily_credits_limit = #{dailyCreditsLimit,jdbcType=INTEGER},
+      </if>
+      <if test="dailyCreditsUsed != null">
+        daily_credits_used = #{dailyCreditsUsed,jdbcType=INTEGER},
+      </if>
+      <if test="subscriptionEndDate != null">
+        subscription_end_date = #{subscriptionEndDate,jdbcType=DATE},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -425,7 +669,24 @@
       integration = #{integration,jdbcType=INTEGER},
       growth = #{growth,jdbcType=INTEGER},
       luckey_count = #{luckeyCount,jdbcType=INTEGER},
-      history_integration = #{historyIntegration,jdbcType=INTEGER}
+      history_integration = #{historyIntegration,jdbcType=INTEGER},
+      <!-- 白鹿AI平台扩展字段 - updateByPrimaryKey -->
+      email = #{email,jdbcType=VARCHAR},
+      wechat_openid = #{wechatOpenid,jdbcType=VARCHAR},
+      google_id = #{googleId,jdbcType=VARCHAR},
+      register_type = #{registerType,jdbcType=TINYINT},
+      email_verified = #{emailVerified,jdbcType=TINYINT},
+      last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      avatar_url = #{avatarUrl,jdbcType=VARCHAR},
+      account_status = #{accountStatus,jdbcType=TINYINT},
+      free_daily_credits = #{freeDailyCredits,jdbcType=INTEGER},
+      used_today_free = #{usedTodayFree,jdbcType=INTEGER},
+      last_reset_date = #{lastResetDate,jdbcType=DATE},
+      current_subscription_id = #{currentSubscriptionId,jdbcType=BIGINT},
+      subscription_level = #{subscriptionLevel,jdbcType=TINYINT},
+      daily_credits_limit = #{dailyCreditsLimit,jdbcType=INTEGER},
+      daily_credits_used = #{dailyCreditsUsed,jdbcType=INTEGER},
+      subscription_end_date = #{subscriptionEndDate,jdbcType=DATE}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

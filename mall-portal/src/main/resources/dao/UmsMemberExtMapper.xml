@@ -31,13 +31,25 @@
         <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
         <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl"/>
         <result column="account_status" jdbcType="TINYINT" property="accountStatus"/>
+        <!-- 积分系统字段 -->
+        <result column="free_daily_credits" jdbcType="INTEGER" property="freeDailyCredits"/>
+        <result column="used_today_free" jdbcType="INTEGER" property="usedTodayFree"/>
+        <result column="last_reset_date" jdbcType="DATE" property="lastResetDate"/>
+        <!-- 套餐系统字段 -->
+        <result column="current_subscription_id" jdbcType="BIGINT" property="currentSubscriptionId"/>
+        <result column="subscription_level" jdbcType="TINYINT" property="subscriptionLevel"/>
+        <result column="daily_credits_limit" jdbcType="INTEGER" property="dailyCreditsLimit"/>
+        <result column="daily_credits_used" jdbcType="INTEGER" property="dailyCreditsUsed"/>
+        <result column="subscription_end_date" jdbcType="DATE" property="subscriptionEndDate"/>
     </resultMap>
     
     <sql id="Base_Column_List">
         id, username, password, nickname, phone, status, create_time, icon, gender, birthday, 
         city, job, personalized_signature, source_type, integration, growth, luckey_count, 
         history_integration, email, wechat_openid, google_id, register_type, email_verified, 
-        last_login_time, avatar_url, account_status
+        last_login_time, avatar_url, account_status, 
+        free_daily_credits, used_today_free, last_reset_date, 
+        current_subscription_id, subscription_level, daily_credits_limit, daily_credits_used, subscription_end_date
     </sql>
     
     <select id="selectByEmail" resultMap="BaseResultMap">
