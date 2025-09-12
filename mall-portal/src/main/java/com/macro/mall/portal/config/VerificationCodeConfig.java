@@ -30,9 +30,9 @@ public class VerificationCodeConfig {
     private int sendIntervalSeconds = 60;
     
     /**
-     * 每日最大发送次数，默认10次
+     * 每日最大发送次数，默认20次
      */
-    private int maxSendPerDay = 10;
+    private int maxSendPerDay = 20;
     
     /**
      * 验证码类型：数字(NUMERIC)、字母(LETTER)、混合(MIXED)

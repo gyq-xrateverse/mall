@@ -47,4 +47,11 @@ public interface VerificationCodeService {
      * @return 下次可发送的剩余时间（秒），0表示可以立即发送
      */
     long getNextSendTime(String email);
+    
+    /**
+     * 重置指定邮箱的每日发送计数
+     * @param email 邮箱地址
+     * @return 是否重置成功
+     */
+    boolean resetDailySendCount(String email);
 }

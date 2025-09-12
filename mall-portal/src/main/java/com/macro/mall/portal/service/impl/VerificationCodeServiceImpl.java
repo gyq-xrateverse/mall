@@ -203,4 +203,17 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         
         redisTemplate.opsForValue().set(countKey, String.valueOf(count + 1), 24, TimeUnit.HOURS);
     }
+    
+    @Override
+    public boolean resetDailySendCount(String email) {
+        try {
+            String countKey = getSendCountKey(email);
+            redisTemplate.delete(countKey);
+            log.info("Reset daily send count for email: {}", email);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to reset daily send count for email: {}", email, e);
+            return false;
+        }
+    }
 }

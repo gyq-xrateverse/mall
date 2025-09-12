@@ -5,6 +5,7 @@ import com.macro.mall.portal.dto.*;
 import com.macro.mall.portal.service.AuthService;
 import com.macro.mall.portal.service.OAuth2Service;
 import com.macro.mall.portal.service.TokenService;
+import com.macro.mall.portal.service.VerificationCodeService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.macro.mall.portal.config.OAuth2Properties;
 import com.macro.mall.portal.domain.dto.OAuth2UserInfo;
@@ -52,6 +53,9 @@ public class AuthController {
     
     @Autowired
     private TokenService tokenService;
+    
+    @Autowired
+    private VerificationCodeService verificationCodeService;
     
     @Value("${jwt.tokenHead}")
     private String tokenHead;
@@ -340,6 +344,26 @@ public class AuthController {
         } catch (Exception e) {
             log.error("获取OAuth2配置失败", e);
             return CommonResult.failed("获取配置失败");
+        }
+    }
+    
+    @Operation(summary = "重置邮箱发送次数", description = "管理员接口：重置指定邮箱的每日验证码发送次数限制")
+    @PostMapping("/reset-send-limit")
+    public CommonResult<String> resetSendLimit(
+            @Parameter(description = "邮箱地址", required = true)
+            @RequestParam @NotBlank(message = "邮箱不能为空") String email) {
+        try {
+            boolean success = verificationCodeService.resetDailySendCount(email);
+            if (success) {
+                log.info("重置邮箱发送次数成功: {}", email);
+                return CommonResult.success("重置成功");
+            } else {
+                log.warn("重置邮箱发送次数失败: {}", email);
+                return CommonResult.failed("重置失败");
+            }
+        } catch (Exception e) {
+            log.error("重置邮箱发送次数异常: {}", email, e);
+            return CommonResult.failed("重置失败: " + e.getMessage());
         }
     }
     

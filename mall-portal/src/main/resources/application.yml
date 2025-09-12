@@ -221,7 +221,7 @@ verification-code:
   length: 6 # 验证码长度
   expire-minutes: 5 # 验证码有效期（分钟）
   send-interval-seconds: 60 # 发送间隔（秒）
-  max-send-per-day: 10 # 每日最大发送次数
+  max-send-per-day: 100 # 每日最大发送次数
   type: NUMERIC # 验证码类型：NUMERIC、LETTER、MIXED
 
 # OAuth2客户端配置
