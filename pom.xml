@@ -46,8 +46,9 @@
         <mysql-connector.version>8.0.29</mysql-connector.version>
         <spring-data-commons.version>3.2.2</spring-data-commons.version>
         <jjwt.version>0.9.1</jjwt.version>
-        <aliyun-oss.version>2.5.0</aliyun-oss.version>
+        <aliyun-oss.version>3.17.4</aliyun-oss.version>
         <alipay-sdk.version>4.38.61.ALL</alipay-sdk.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
         <logstash-logback.version>7.4</logstash-logback.version>
         <minio.version>8.4.5</minio.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
@@ -183,6 +184,12 @@
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun-oss.version}</version>
+            </dependency>
+            <!-- Apache Commons Collections -->
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
             </dependency>
             <!--集成logstash-->
             <dependency>

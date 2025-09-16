@@ -99,9 +99,11 @@ redis:
     authCode: 'ums:authCode'
     orderId: 'oms:orderId'
     member: 'ums:member'
+    case: 'case'
   expire:
     authCode: 90 # 验证码超期时间
     common: 86400 # 24小时
+    case: 3600 # 案例缓存1小时
 
 mongo:
   insert:
@@ -223,6 +225,25 @@ verification-code:
   send-interval-seconds: 60 # 发送间隔（秒）
   max-send-per-day: 100 # 每日最大发送次数
   type: NUMERIC # 验证码类型：NUMERIC、LETTER、MIXED
+
+# 存储服务配置
+storage:
+  type: minio # 存储类型：minio、aliyun-oss
+  # MinIO配置
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    bucket-name: ${MINIO_BUCKET_NAME:mall}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  # 阿里云OSS配置
+  aliyun:
+    oss:
+      endpoint: ${ALIYUN_OSS_ENDPOINT:}
+      bucket-name: ${ALIYUN_OSS_BUCKET_NAME:}
+      access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+      access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+      cdn-domain: ${ALIYUN_OSS_CDN_DOMAIN:}
+      internal-endpoint: ${ALIYUN_OSS_INTERNAL_ENDPOINT:}
 
 # OAuth2客户端配置
 oauth2:

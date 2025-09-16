@@ -42,6 +42,52 @@ public class MinioController {
     @ResponseBody
     public CommonResult upload(@RequestPart("file") MultipartFile file) {
         try {
+            // 文件类型和大小验证
+            String filename = file.getOriginalFilename();
+            if (filename == null || filename.isEmpty()) {
+                return CommonResult.failed("文件名不能为空");
+            }
+
+            String fileExtension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
+            long fileSize = file.getSize();
+
+            // 支持的图片格式
+            String[] imageExtensions = {"jpg", "jpeg", "png", "gif", "bmp", "webp"};
+            // 支持的视频格式
+            String[] videoExtensions = {"mp4", "avi", "mov", "wmv", "flv", "webm", "mkv", "3gp"};
+
+            boolean isImage = false;
+            boolean isVideo = false;
+
+            for (String ext : imageExtensions) {
+                if (ext.equals(fileExtension)) {
+                    isImage = true;
+                    break;
+                }
+            }
+
+            for (String ext : videoExtensions) {
+                if (ext.equals(fileExtension)) {
+                    isVideo = true;
+                    break;
+                }
+            }
+
+            if (!isImage && !isVideo) {
+                return CommonResult.failed("不支持的文件格式，仅支持图片和视频文件");
+            }
+
+            // 文件大小限制
+            long maxImageSize = 10 * 1024 * 1024; // 10MB for images
+            long maxVideoSize = 500 * 1024 * 1024; // 500MB for videos
+
+            if (isImage && fileSize > maxImageSize) {
+                return CommonResult.failed("图片文件大小不能超过10MB");
+            }
+
+            if (isVideo && fileSize > maxVideoSize) {
+                return CommonResult.failed("视频文件大小不能超过500MB");
+            }
             //创建一个MinIO的Java客户端
             MinioClient minioClient =MinioClient.builder()
                     .endpoint(ENDPOINT)
@@ -60,7 +106,6 @@ public class MinioController {
                         .build();
                 minioClient.setBucketPolicy(setBucketPolicyArgs);
             }
-            String filename = file.getOriginalFilename();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             // 设置存储对象名称
             String objectName = sdf.format(new Date()) + "/" + filename;
@@ -74,7 +119,8 @@ public class MinioController {
             LOGGER.info("文件上传成功!");
             MinioUploadDto minioUploadDto = new MinioUploadDto();
             minioUploadDto.setName(filename);
-            minioUploadDto.setUrl(ENDPOINT + "/" + BUCKET_NAME + "/" + objectName);
+            minioUploadDto.setObjectName(objectName); // 返回objectName用于数据库存储
+            minioUploadDto.setUrl(ENDPOINT + "/" + BUCKET_NAME + "/" + objectName); // 保留URL用于前端预览
             return CommonResult.success(minioUploadDto);
         } catch (Exception e) {
             e.printStackTrace();

@@ -15,4 +15,6 @@ public class MinioUploadDto {
     private String url;
     @Schema(title = "文件名称")
     private String name;
+    @Schema(title = "文件ObjectName")
+    private String objectName;
 }

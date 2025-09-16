@@ -117,8 +117,31 @@ logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
+# 存储服务测试配置
+storage:
+  type: minio # 测试默认使用MinIO
+
+# MinIO测试配置
+minio:
+  endpoint: http://localhost:9090
+  bucketName: test-mall
+  accessKey: minioadmin
+  secretKey: minioadmin
+
+# 阿里云OSS测试配置（用于OSS实现测试）
+aliyun:
+  oss:
+    endpoint: https://oss-cn-hangzhou.aliyuncs.com
+    bucketName: test-mall-oss
+    accessKeyId: test-access-key-id
+    accessKeySecret: test-access-key-secret
+    cdnDomain: https://test-cdn.example.com
+    internalEndpoint: https://oss-cn-hangzhou-internal.aliyuncs.com
+
 # 测试配置
 test:
   mock-email-service: true
   skip-email-sending: true
   use-in-memory-redis: false  # 如果需要使用内存Redis可以设置为true
+  mock-storage-service: false  # 是否使用Mock存储服务
+  test-file-cleanup: true     # 测试后是否清理文件

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.macro.mall.common.service.RedisService;
 import com.macro.mall.common.service.impl.RedisServiceImpl;
+import com.macro.mall.common.service.RedisLockService;
+import com.macro.mall.common.service.impl.RedisLockServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -60,6 +62,11 @@ public class BaseRedisConfig {
     @Bean
     public RedisService redisService(){
         return new RedisServiceImpl();
+    }
+
+    @Bean
+    public RedisLockService redisLockService(){
+        return new RedisLockServiceImpl();
     }
 
 }
