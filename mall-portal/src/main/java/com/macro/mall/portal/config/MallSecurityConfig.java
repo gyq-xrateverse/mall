@@ -16,9 +16,9 @@ public class MallSecurityConfig {
     @Autowired
     private UmsMemberService memberService;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        //获取登录用户信息
+    @Bean("portalUserDetailsService")
+    public UserDetailsService portalUserDetailsService() {
+        //获取Portal模块登录用户信息
         return username -> memberService.loadUserByUsername(username);
     }
 }

@@ -17,3 +17,16 @@ docker compose -f /root/install/mall/docker-compose-env.yml up -d
 docker compose -f /root/install/mall/docker-compose-env.yml down
 
 
+# MiniIO
+## 配置连接
+/root/install/mc alias set myminio http://localhost:9090 minioadmin minioadmin
+
+## 创建测试存储桶
+/root/install/mc mb /root/install/mall/minio/data/test-mall
+## 删除测试存储桶
+/root/install/mc rb --force /root/install/mall/minio/data/test-mall
+
+## 设置为只读下载权限（推荐）
+/root/install/mc anonymous set download /root/install/mall/minio/data/test-mall
+## 设置为public权限（推荐）
+/root/install/mc anonymous set public /root/install/mall/minio/data/test-mall

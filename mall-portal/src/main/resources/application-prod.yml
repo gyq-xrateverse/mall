@@ -30,6 +30,26 @@ spring:
     username: mall
     password: mall
 
+# 存储服务配置
+storage:
+  type: minio # 存储类型：minio、aliyun-oss
+
+minio:
+  endpoint: http://minio:9000 #MinIO服务所在地址
+  bucketName: mall #存储桶名称
+  accessKey: minioadmin
+  secretKey: minioadmin
+
+# 阿里云OSS配置（切换时启用）
+aliyun:
+  oss:
+    endpoint: # your-oss-endpoint
+    bucketName: # your-bucket-name
+    accessKeyId: # your-access-key-id
+    accessKeySecret: # your-access-key-secret
+    cdnDomain: # your-cdn-domain（可选）
+    internalEndpoint: # your-internal-endpoint（可选，用于优化上传性能）
+
 mongo:
   insert:
     sqlEnable: true # 用于控制是否通过数据库数据来插入mongo

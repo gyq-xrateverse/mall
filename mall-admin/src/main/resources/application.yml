@@ -27,8 +27,10 @@ redis:
   key:
     admin: 'ums:admin'
     resourceList: 'ums:resourceList'
+    case: 'case'
   expire:
     common: 86400 # 24小时
+    case: 3600 # 案例缓存1小时
 
 secure:
   ignored:
