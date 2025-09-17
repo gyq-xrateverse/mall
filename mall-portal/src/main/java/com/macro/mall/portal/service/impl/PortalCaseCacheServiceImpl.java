@@ -86,10 +86,37 @@ public class PortalCaseCacheServiceImpl implements PortalCaseCacheService {
     @Override
     public void delAllCache() {
         String categoryKey = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:category:list";
-        String hotKey = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:hot*";
-        String latestKey = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:latest*";
-        String detailKey = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:detail*";
-        
+        String hotPattern = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:hot*";
+        String latestPattern = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:latest*";
+        String detailPattern = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:detail*";
+
         redisService.del(categoryKey);
+        redisService.delByPattern(hotPattern);
+        redisService.delByPattern(latestPattern);
+        redisService.delByPattern(detailPattern);
+    }
+
+    @Override
+    public void delCaseCategoryCache() {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:category:list";
+        redisService.del(key);
+    }
+
+    @Override
+    public void delCaseDetailCache(Long caseId) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:detail:" + caseId;
+        redisService.del(key);
+    }
+
+    @Override
+    public void delHotCaseCache() {
+        String pattern = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:hot*";
+        redisService.delByPattern(pattern);
+    }
+
+    @Override
+    public void delLatestCaseCache() {
+        String pattern = REDIS_DATABASE + ":" + REDIS_KEY_CASE + ":portal:latest*";
+        redisService.delByPattern(pattern);
     }
 }

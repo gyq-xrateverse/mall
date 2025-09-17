@@ -30,3 +30,9 @@ docker compose -f /root/install/mall/docker-compose-env.yml down
 /root/install/mc anonymous set download /root/install/mall/minio/data/test-mall
 ## 设置为public权限（推荐）
 /root/install/mc anonymous set public /root/install/mall/minio/data/test-mall
+
+
+
+
+# 立即刷新缓存解决URL端口问题：
+curl -X POST http://localhost:8085/api/cache/case/refresh/all

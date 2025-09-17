@@ -6,10 +6,16 @@ spring:
   servlet:
     multipart:
       enabled: true #开启文件上传
-      max-file-size: 10MB #限制文件上传大小为10M
+      max-file-size: 250MB #限制单个文件上传大小为250M
+      max-request-size: 500MB #限制整个请求大小为500M
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+server:
+  tomcat:
+    max-swallow-size: 500MB #Tomcat最大请求大小
+    max-http-header-size: 100MB #HTTP请求头最大大小
 
 mybatis:
   mapper-locations:

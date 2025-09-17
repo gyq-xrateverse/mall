@@ -229,12 +229,7 @@ verification-code:
 # 存储服务配置
 storage:
   type: minio # 存储类型：minio、aliyun-oss
-  # MinIO配置
-  minio:
-    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-    bucket-name: ${MINIO_BUCKET_NAME:mall}
-    access-key: ${MINIO_ACCESS_KEY:minioadmin}
-    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+
   # 阿里云OSS配置
   aliyun:
     oss:
@@ -260,4 +255,10 @@ oauth2:
     base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
     auth-success-redirect: ${FRONTEND_AUTH_SUCCESS_REDIRECT:/auth/success}
     auth-error-redirect: ${FRONTEND_AUTH_ERROR_REDIRECT:/auth/error}
+
+# 应用配置
+app:
+  cache:
+    clear-on-startup: ${CACHE_CLEAR_ON_STARTUP:true} # 启动时是否清理缓存
+    clear-types: ${CACHE_CLEAR_TYPES:all} # 清理类型: all, case, category, hot, latest 用逗号分隔
 

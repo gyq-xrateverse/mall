@@ -55,4 +55,24 @@ public interface PortalCaseCacheService {
      * 删除所有缓存
      */
     void delAllCache();
+
+    /**
+     * 删除案例分类缓存
+     */
+    void delCaseCategoryCache();
+
+    /**
+     * 删除案例详情缓存
+     */
+    void delCaseDetailCache(Long caseId);
+
+    /**
+     * 删除热门案例缓存
+     */
+    void delHotCaseCache();
+
+    /**
+     * 删除最新案例缓存
+     */
+    void delLatestCaseCache();
 }

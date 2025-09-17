@@ -78,11 +78,11 @@ public class MinioController {
             }
 
             // 文件大小限制
-            long maxImageSize = 10 * 1024 * 1024; // 10MB for images
+            long maxImageSize = 250 * 1024 * 1024; // 250MB for images
             long maxVideoSize = 500 * 1024 * 1024; // 500MB for videos
 
             if (isImage && fileSize > maxImageSize) {
-                return CommonResult.failed("图片文件大小不能超过10MB");
+                return CommonResult.failed("图片文件大小不能超过250MB");
             }
 
             if (isVideo && fileSize > maxVideoSize) {

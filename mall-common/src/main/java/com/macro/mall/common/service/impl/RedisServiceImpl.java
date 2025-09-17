@@ -43,6 +43,15 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public Long delByPattern(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys != null && !keys.isEmpty()) {
+            return redisTemplate.delete(keys);
+        }
+        return 0L;
+    }
+
+    @Override
     public Boolean expire(String key, long time) {
         return redisTemplate.expire(key, time, TimeUnit.SECONDS);
     }
