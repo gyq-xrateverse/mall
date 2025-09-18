@@ -7,6 +7,7 @@ import com.macro.mall.dto.CaseDataParam;
 import com.macro.mall.dto.CaseDataQueryParam;
 import com.macro.mall.dto.CaseDataResult;
 import com.macro.mall.service.CaseDataService;
+import com.macro.mall.service.CaseCacheService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class CaseDataController {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private CaseCacheService caseCacheService;
 
     @Operation(summary = "添加案例数据")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -81,6 +85,14 @@ public class CaseDataController {
 
             int count = caseDataService.create(caseDataParam);
             if (count > 0) {
+                // 创建成功后清理缓存并发布消息
+                try {
+                    // 调用专门的创建缓存清理方法，传入虚拟ID（因为Service层没有返回新创建的ID）
+                    caseCacheService.clearCacheForCaseCreate(0L, "admin_user");
+                } catch (Exception e) {
+                    // 缓存清理失败不影响主业务，只记录日志
+                    System.err.println("缓存清理失败: " + e.getMessage());
+                }
                 return CommonResult.success(count);
             } else {
                 // 创建失败，清理已上传的文件
@@ -169,6 +181,13 @@ public class CaseDataController {
                 if (oldVideoObjectName != null) {
                     fileStorageService.deleteFile(oldVideoObjectName);
                 }
+                // 更新成功后清理缓存并发布消息
+                try {
+                    caseCacheService.clearCacheForCaseUpdate(id, "admin_user");
+                } catch (Exception e) {
+                    // 缓存清理失败不影响主业务，只记录日志
+                    System.err.println("缓存清理失败: " + e.getMessage());
+                }
                 return CommonResult.success(count);
             } else {
                 // 更新失败，删除新上传的文件
@@ -220,6 +239,13 @@ public class CaseDataController {
                         fileStorageService.deleteFile(caseData.getVideo());
                     }
                 }
+                // 删除成功后清理缓存并发布消息
+                try {
+                    caseCacheService.clearCacheForCaseDelete(id, "admin_user");
+                } catch (Exception e) {
+                    // 缓存清理失败不影响主业务，只记录日志
+                    System.err.println("缓存清理失败: " + e.getMessage());
+                }
                 return CommonResult.success(count);
             } else {
                 return CommonResult.failed("案例删除失败");
@@ -254,6 +280,13 @@ public class CaseDataController {
                         fileStorageService.deleteFile(caseData.getVideo());
                     }
                 }
+                // 批量删除成功后清理缓存并发布消息
+                try {
+                    caseCacheService.clearCacheForCaseBatchDelete(ids, "admin_user");
+                } catch (Exception e) {
+                    // 缓存清理失败不影响主业务，只记录日志
+                    System.err.println("缓存清理失败: " + e.getMessage());
+                }
                 return CommonResult.success(count);
             } else {
                 return CommonResult.failed("批量删除失败");
@@ -266,10 +299,19 @@ public class CaseDataController {
     @Operation(summary = "修改状态")
     @RequestMapping(value = "/update/status", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult updateStatus(@RequestParam("ids") List<Long> ids, 
+    public CommonResult updateStatus(@RequestParam("ids") List<Long> ids,
                                    @RequestParam("status") Integer status) {
         int count = caseDataService.updateStatus(ids, status);
         if (count > 0) {
+            // 状态更新成功后清理缓存并发布消息
+            try {
+                for (Long id : ids) {
+                    caseCacheService.clearCacheForCaseStatusUpdate(id, "admin_user");
+                }
+            } catch (Exception e) {
+                // 缓存清理失败不影响主业务，只记录日志
+                System.err.println("缓存清理失败: " + e.getMessage());
+            }
             return CommonResult.success(count);
         } else {
             return CommonResult.failed();
@@ -279,10 +321,19 @@ public class CaseDataController {
     @Operation(summary = "修改显示状态")
     @RequestMapping(value = "/update/showStatus", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult updateShowStatus(@RequestParam("ids") List<Long> ids, 
+    public CommonResult updateShowStatus(@RequestParam("ids") List<Long> ids,
                                        @RequestParam("showStatus") Integer showStatus) {
         int count = caseDataService.updateShowStatus(ids, showStatus);
         if (count > 0) {
+            // 显示状态更新成功后清理缓存并发布消息
+            try {
+                for (Long id : ids) {
+                    caseCacheService.clearCacheForCaseStatusUpdate(id, "admin_user");
+                }
+            } catch (Exception e) {
+                // 缓存清理失败不影响主业务，只记录日志
+                System.err.println("缓存清理失败: " + e.getMessage());
+            }
             return CommonResult.success(count);
         } else {
             return CommonResult.failed();
@@ -295,6 +346,13 @@ public class CaseDataController {
     public CommonResult approve(@PathVariable Long id, @RequestParam("status") Integer status) {
         int count = caseDataService.approve(id, status);
         if (count > 0) {
+            // 审核成功后清理缓存并发布消息
+            try {
+                caseCacheService.clearCacheForCaseStatusUpdate(id, "admin_user");
+            } catch (Exception e) {
+                // 缓存清理失败不影响主业务，只记录日志
+                System.err.println("缓存清理失败: " + e.getMessage());
+            }
             return CommonResult.success(count);
         } else {
             return CommonResult.failed();

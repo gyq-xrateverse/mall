@@ -104,6 +104,9 @@ redis:
     authCode: 90 # 验证码超期时间
     common: 86400 # 24小时
     case: 3600 # 案例缓存1小时
+  # Redis消息监听配置
+  listener:
+    channel: mall:cache:update # 监听的消息频道
 
 mongo:
   insert:

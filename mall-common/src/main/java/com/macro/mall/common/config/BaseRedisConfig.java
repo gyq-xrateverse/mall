@@ -46,7 +46,7 @@ public class BaseRedisConfig {
         //必须设置，否则无法将JSON转化为对象，会转化成Map类型
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,ObjectMapper.DefaultTyping.NON_FINAL);
         //创建JSON序列化器
-        return new Jackson2JsonRedisSerializer<>(objectMapper,Object.class);
+        return new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
     }
 
     @Bean

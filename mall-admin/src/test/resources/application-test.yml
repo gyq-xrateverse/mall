@@ -1,7 +1,4 @@
-# 门户端测试环境配置
-server:
-  port: 8086  # 避免与主应用端口冲突
-
+# 测试环境配置
 spring:
   profiles:
     active: test
@@ -22,28 +19,24 @@ spring:
 redis:
   database: test_mall
   key:
-    authCode: 'test_ums:authCode'
-    orderId: 'test_oms:orderId'
-    member: 'test_ums:member'
+    admin: 'test_ums:admin'
+    resourceList: 'test_ums:resourceList'
     case: 'test_case'
   expire:
-    authCode: 60   # 缩短验证码过期时间
-    common: 60     # 通用缓存60秒
-    case: 30       # 案例缓存30秒
-  # Redis消息监听配置
-  listener:
-    channel: mall:cache:update # 监听的消息频道
+    common: 60    # 测试环境缩短过期时间
+    case: 30      # 案例缓存30秒
 
-# 应用配置
-app:
-  cache:
-    clear-on-startup: true
-    clear-types: all
+# 安全配置
+cache:
+  security:
+    rate-limit:
+      max-per-minute: 10  # 降低限制便于测试
+      max-per-hour: 100
 
 # 日志配置
 logging:
   level:
-    com.macro.mall.portal: DEBUG
+    com.macro.mall: DEBUG
     org.springframework.data.redis: DEBUG
     root: INFO
   pattern:
@@ -55,14 +48,9 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
 # 测试专用配置
 test:
-  portal:
-    cache:
-      cleanup-on-startup: true
-      mock-external-services: true
-    message:
-      timeout-seconds: 5
-      max-message-size: 10000
+  cache:
+    cleanup-on-startup: true
+    mock-external-services: true
