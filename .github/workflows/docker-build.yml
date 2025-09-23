@@ -13,9 +13,9 @@ on:
       - '.github/workflows/docker-build.yml'
 
 env:
-  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  MALL_ADMIN_IMAGE: ${{ secrets.DOCKER_REGISTRY }}/mall/mall-admin
-  MALL_PORTAL_IMAGE: ${{ secrets.DOCKER_REGISTRY }}/mall/mall-portal
+  ALIYUN_DOCKER_REGISTRY: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}
+  MALL_ADMIN_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/mall/mall-admin
+  MALL_PORTAL_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/mall/mall-portal
 
 jobs:
   build-and-push:
@@ -81,27 +81,27 @@ jobs:
 
       - name: 检查必需的 Secrets
         run: |
-          if [ -z "${{ secrets.DOCKER_REGISTRY }}" ]; then
-            echo "❌ DOCKER_REGISTRY secret 未配置"
+          if [ -z "${{ secrets.ALIYUN_DOCKER_REGISTRY }}" ]; then
+            echo "❌ ALIYUN_DOCKER_REGISTRY secret 未配置"
             exit 1
           fi
-          if [ -z "${{ secrets.DOCKER_USER }}" ]; then
-            echo "❌ DOCKER_USER secret 未配置"
+          if [ -z "${{ secrets.ALIYUN_DOCKER_USER }}" ]; then
+            echo "❌ ALIYUN_DOCKER_USER secret 未配置"
             exit 1
           fi
-          if [ -z "${{ secrets.DOCKER_TOKEN }}" ]; then
-            echo "❌ DOCKER_TOKEN secret 未配置"
+          if [ -z "${{ secrets.ALIYUN_DOCKER_TOKEN }}" ]; then
+            echo "❌ ALIYUN_DOCKER_TOKEN secret 未配置"
             exit 1
           fi
           echo "✅ 所有必需的 Secrets 已配置"
 
-      - name: 登录Docker容器镜像仓库
+      - name: 登录阿里云容器镜像仓库
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          registry: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}
+          username: ${{ secrets.ALIYUN_DOCKER_USER }}
+          password: ${{ secrets.ALIYUN_DOCKER_TOKEN }}
 
       - name: 构建 Maven 项目
         run: |
@@ -205,7 +205,7 @@ jobs:
             echo "Mall-Admin 版本: ${{ env.VERSION }}"
             echo "Mall-Portal 版本: ${{ env.VERSION }}"
             echo "构建平台: linux/amd64"
-            echo "镜像仓库: ${{ env.DOCKER_REGISTRY }}"
+            echo "镜像仓库: ${{ env.ALIYUN_DOCKER_REGISTRY }}"
             echo "推送状态: ${{ github.event_name != 'pull_request' && '已推送' || '仅构建' }}"
           else
             echo "❌ Mall Docker 镜像构建失败!"
