@@ -17,7 +17,6 @@ COPY target/mall-admin-*.jar app.jar
 EXPOSE 8080
 
 # 设置时区
-RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
 
 # 启动命令

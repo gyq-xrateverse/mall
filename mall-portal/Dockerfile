@@ -17,7 +17,6 @@ COPY target/mall-portal-*.jar app.jar
 EXPOSE 8085
 
 # 设置时区
-RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
 
 # 启动命令
