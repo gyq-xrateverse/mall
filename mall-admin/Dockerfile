@@ -1,5 +1,5 @@
 # 该镜像需要依赖的基础镜像
-FROM eclipse-temurin:17.0.16_8-jre-ubi9-minimal
+FROM amazoncorretto:17.0.16
 
 # 维护者信息
 MAINTAINER macro
