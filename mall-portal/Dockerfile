@@ -1,5 +1,5 @@
 # 该镜像需要依赖的基础镜像
-FROM openjdk:17-jre-alpine
+FROM eclipse-temurin:17.0.16_8-jre-ubi9-minimal
 
 # 维护者信息
 MAINTAINER macro
