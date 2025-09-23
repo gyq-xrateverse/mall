@@ -10,6 +10,7 @@ services:
       - /etc/localtime:/etc/localtime
     environment:
       - 'TZ="Asia/Shanghai"'
+      - 'SPRING_PROFILES_ACTIVE=prod'
     external_links:
       - mysql:db #可以用db这个域名访问mysql服务
       - minio:minio #可以用minio这个域名访问minio服务
@@ -23,6 +24,7 @@ services:
       - /etc/localtime:/etc/localtime
     environment:
       - 'TZ="Asia/Shanghai"'
+      - 'SPRING_PROFILES_ACTIVE=prod'
     external_links:
       - redis:redis #可以用redis这个域名访问redis服务
       - mongo:mongo #可以用mongo这个域名访问mongo服务

@@ -21,4 +21,4 @@ RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
 
 # 启动命令
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-dev}", "-jar", "app.jar"]
