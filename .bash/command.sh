@@ -16,6 +16,10 @@ docker compose -f /root/install/mall/docker-compose-env.yml up -d
 
 docker compose -f /root/install/mall/docker-compose-env.yml down
 
+docker compose -f /root/install/mall/docker-compose-app.yml up -d
+
+docker compose -f /root/install/mall/docker-compose-app.yml down
+
 
 # MiniIO
 ## 配置连接
