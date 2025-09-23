@@ -1,7 +1,7 @@
 version: '3'
 services:
   mall-admin:
-    image: mall/mall-admin:1.0-SNAPSHOT
+    image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
     container_name: mall-admin
     ports:
       - 8080:8080
@@ -15,7 +15,7 @@ services:
       - mysql:db #可以用db这个域名访问mysql服务
       - minio:minio #可以用minio这个域名访问minio服务
   mall-portal:
-    image: mall/mall-portal:1.0-SNAPSHOT
+    image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
     container_name: mall-portal
     ports:
       - 8085:8085
