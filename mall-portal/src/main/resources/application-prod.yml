@@ -20,7 +20,7 @@ spring:
     redis:
       host: redis # Redis服务器地址
       database: 1 # Redis数据库索引（默认为0）
-      port: 16379 # Redis服务器连接端口
+      port: 6379 # Redis服务器连接端口
       password: # Redis服务器连接密码（默认为空）
       timeout: 300ms # 连接超时时间（毫秒）
   rabbitmq:
@@ -35,7 +35,8 @@ storage:
   type: minio # 存储类型：minio、aliyun-oss
 
 minio:
-  endpoint: http://localhost:9090 #MinIO服务所在地址（生产环境应该使用实际的MinIO服务地址）
+  endpoint: http://minio:9000 #MinIO服务所在地址（内部连接）
+  publicEndpoint: http://localhost:9090 #MinIO外部访问地址（用于URL拼接）
   bucketName: mall #存储桶名称
   accessKey: minioadmin
   secretKey: minioadmin

@@ -4,7 +4,7 @@ services:
     image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
     container_name: mall-admin
     ports:
-      - 8080:8080
+      - 18080:8080
     volumes:
       - /root/install/mall/app/mall-admin/logs:/var/logs
       - /etc/localtime:/etc/localtime
@@ -18,7 +18,7 @@ services:
     image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
     container_name: mall-portal
     ports:
-      - 8085:8085
+      - 18085:8085
     volumes:
       - /root/install/mall/app/mall-portal/logs:/var/logs
       - /etc/localtime:/etc/localtime

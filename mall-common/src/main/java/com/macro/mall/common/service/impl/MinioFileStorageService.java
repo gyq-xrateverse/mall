@@ -26,6 +26,9 @@ public class MinioFileStorageService implements FileStorageService {
     @Value("${minio.endpoint}")
     private String endpoint;
 
+    @Value("${minio.publicEndpoint:${minio.endpoint}}")
+    private String publicEndpoint;
+
     @Value("${minio.bucketName}")
     private String bucketName;
 
@@ -119,7 +122,8 @@ public class MinioFileStorageService implements FileStorageService {
             return objectName;
         }
 
-        return endpoint + "/" + bucketName + "/" + objectName;
+        // 使用外部访问地址构建URL
+        return publicEndpoint + "/" + bucketName + "/" + objectName;
     }
 
     @Override
