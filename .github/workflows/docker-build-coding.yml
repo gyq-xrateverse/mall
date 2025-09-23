@@ -1,0 +1,279 @@
+name: Build and Push ComfyUI Docker Image to Coding
+
+on:
+  workflow_dispatch:  # Manual trigger
+  # schedule:
+  #   # 每月3号凌晨0点运行
+  #   - cron: '0 0 3 * *'
+  push:
+    tags:
+      - 'v*'
+    branches: 
+      - main
+      - master
+    paths:
+      - 'Dockerfile'
+      - 'scripts/**'
+      - '.github/workflows/docker-build-coding.yml'
+
+env:
+  CODING_DOCKER_REGISTRY: ${{ secrets.CODING_DOCKER_REGISTRY }}
+  CODING_DOCKER_IMAGE: ${{ secrets.CODING_DOCKER_REGISTRY }}/clipshop/comfyui
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest  # 标准runner，通过优化提升效率
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: 获取版本信息
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "IS_TAG=true" >> $GITHUB_ENV
+            echo "Version from tag: $VERSION"
+          else
+            # 获取 ComfyUI 版本
+            git clone https://github.com/comfyanonymous/ComfyUI.git temp_comfyui
+            cd temp_comfyui
+            COMFYUI_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "latest")
+            cd ..
+            rm -rf temp_comfyui
+            
+            COMMIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="${COMFYUI_VERSION}-${COMMIT_SHA}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "IS_TAG=false" >> $GITHUB_ENV
+            echo "Version from ComfyUI: $VERSION"
+          fi
+          
+      - name: 清理磁盘空间
+        run: |
+          echo "=== 清理前磁盘空间 ==="
+          df -h
+          echo "=== 清理大型预装软件 ==="
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /opt/az
+          echo "=== 清理 Docker 缓存 ==="
+          docker system prune -af --volumes || true
+          echo "=== 清理 APT 缓存 ==="
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          echo "=== 清理临时文件 ==="
+          sudo rm -rf /tmp/*
+          sudo rm -rf /var/tmp/*
+          echo "=== 清理 GitHub Actions 缓存 ==="
+          sudo rm -rf /home/runner/.cache
+          sudo rm -rf /opt/hostedtoolcache
+          echo "=== 清理后磁盘空间 ==="
+          df -h
+          
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+          config-inline: |
+            [worker.oci]
+              max-parallelism = 2
+            [worker.containerd]
+              max-parallelism = 2
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
+
+      - name: 检查必需的 Secrets
+        run: |
+          if [ -z "${{ secrets.CODING_DOCKER_REGISTRY }}" ]; then
+            echo "❌ CODING_DOCKER_REGISTRY secret 未配置"
+            exit 1
+          fi
+          if [ -z "${{ secrets.CODING_DOCKER_USER }}" ]; then
+            echo "❌ CODING_DOCKER_USER secret 未配置"
+            exit 1
+          fi
+          if [ -z "${{ secrets.CODING_DOCKER_TOKEN }}" ]; then
+            echo "❌ CODING_DOCKER_TOKEN secret 未配置"
+            exit 1
+          fi
+          echo "✅ 所有必需的 Secrets 已配置"
+          echo "仓库地址: ${{ secrets.CODING_DOCKER_REGISTRY }}"
+          echo "镜像名称: ${{ env.CODING_DOCKER_IMAGE }}"
+          echo "用户名: ${{ secrets.CODING_DOCKER_USER }}"
+
+      - name: 登录腾讯Coding容器镜像仓库
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.CODING_DOCKER_REGISTRY }}
+          username: ${{ secrets.CODING_DOCKER_USER }}
+          password: ${{ secrets.CODING_DOCKER_TOKEN }}
+          
+      - name: 验证登录状态
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "验证 Docker 登录状态..."
+          docker info
+          echo "测试仓库连接..."
+          curl -I "https://${{ secrets.CODING_DOCKER_REGISTRY }}/v2/" || echo "仓库连接测试完成"
+          echo "测试镜像推送权限..."
+          docker pull hello-world:latest || echo "无法拉取测试镜像"
+          docker tag hello-world:latest ${{ env.CODING_DOCKER_IMAGE }}/comfyui:test || echo "标签创建失败"
+            
+      - name: 提取元数据
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.CODING_DOCKER_IMAGE }}/comfyui
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ env.VERSION }}
+
+      - name: 监控系统资源
+        run: |
+          echo "=== 构建前系统资源检查 ==="
+          echo "CPU信息:"
+          nproc
+          lscpu | grep "Model name"
+          echo "内存信息:"
+          free -h
+          echo "磁盘空间:"
+          df -h
+          AVAILABLE_GB=$(df / | awk 'NR==2{printf "%.0f", $4/1024/1024}')
+          echo "可用空间: ${AVAILABLE_GB}GB"
+          if [ $AVAILABLE_GB -lt 15 ]; then
+            echo "❌ 警告: 可用磁盘空间不足 15GB，可能导致构建失败"
+            echo "建议清理更多空间或使用更大的 runner"
+          else
+            echo "✅ 磁盘空间充足，可以开始构建"
+          fi
+          echo "Docker版本:"
+          docker version --format '{{.Server.Version}}'
+
+      - name: 构建并推送 ComfyUI Docker 镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,ignore-error=true
+          build-args: |
+            PYTHON_VERSION=3.11
+            CUDA_VERSION=12.1.1
+            VERSION=${{ env.VERSION }}
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ github.sha }}
+          provenance: false
+          sbom: false
+          outputs: type=image,push=${{ github.event_name != 'pull_request' }}
+        timeout-minutes: 240  # 增加到4小时
+        
+      - name: 构建后空间检查
+        if: always()
+        run: |
+          echo "=== 构建后磁盘空间 ==="
+          df -h
+          echo "=== Docker镜像大小 ==="
+          docker images | head -10
+          echo "=== Docker系统信息 ==="
+          docker system df
+        
+      - name: 手动推送镜像
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          echo "构建失败，尝试手动推送..."
+          echo "检查本地镜像："
+          docker images | grep comfyui || echo "未找到本地镜像"
+          
+          echo "检查镜像标签："
+          echo "${{ steps.meta.outputs.tags }}"
+          
+          # 尝试重新标记和推送
+          if docker images | grep -q comfyui; then
+            IMAGE_ID=$(docker images | grep comfyui | head -n1 | awk '{print $3}')
+            echo "找到镜像 ID: $IMAGE_ID"
+            
+                         # 重新标记主要标签 (使用正确的PACKAGE格式)
+             docker tag $IMAGE_ID ${{ env.CODING_DOCKER_IMAGE }}/comfyui:latest
+             docker tag $IMAGE_ID ${{ env.CODING_DOCKER_IMAGE }}/comfyui:${{ env.VERSION }}
+             
+             # 推送标签
+             echo "推送 latest 标签..."
+             docker push ${{ env.CODING_DOCKER_IMAGE }}/comfyui:latest || echo "推送 latest 失败"
+             
+             echo "推送版本标签..."
+             docker push ${{ env.CODING_DOCKER_IMAGE }}/comfyui:${{ env.VERSION }} || echo "推送版本标签失败"
+          else
+            echo "未找到可推送的镜像"
+          fi
+          
+      - name: 构建后清理
+        if: always()
+        run: |
+          echo "=== 构建后磁盘空间 ==="
+          df -h
+          echo "=== 清理构建缓存 ==="
+          docker system prune -af --volumes || true
+          echo "=== 最终磁盘空间 ==="
+          df -h
+          
+      - name: 诊断推送问题
+        if: failure()
+        run: |
+          echo "=== 推送失败诊断 ==="
+          echo "仓库地址: ${{ secrets.CODING_DOCKER_REGISTRY }}"
+          echo "镜像名称: ${{ env.CODING_DOCKER_IMAGE }}"
+          echo "预期标签:"
+          echo "${{ steps.meta.outputs.tags }}"
+          
+          echo "=== 检查 Docker 配置 ==="
+          docker version
+          docker info | grep -i registry || true
+          
+          echo "=== 检查网络连接 ==="
+          ping -c 3 "${{ secrets.CODING_DOCKER_REGISTRY }}" || echo "无法 ping 仓库地址"
+          
+          echo "=== 常见解决方案 ==="
+          echo "1. 检查 CODING_DOCKER_REGISTRY 格式 (应该是: g-chqo4329-docker.pkg.coding.net)"
+          echo "2. 检查 CODING_DOCKER_USER 和 CODING_DOCKER_TOKEN 是否正确"
+          echo "3. 确认仓库权限设置"
+          echo "4. 检查镜像名称格式 (应该是: registry/namespace/repository:tag)"
+          echo "5. 当前配置:"
+          echo "   Registry: ${{ secrets.CODING_DOCKER_REGISTRY }}"
+          echo "   Image: ${{ env.CODING_DOCKER_IMAGE }}"
+          echo "   User: ${{ secrets.CODING_DOCKER_USER }}"
+
+      - name: 构建状态通知
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ ComfyUI Docker 镜像构建成功!"
+            echo "镜像版本: ${{ env.VERSION }}"
+            echo "构建平台: linux/amd64"
+            echo "镜像仓库: ${{ env.CODING_DOCKER_REGISTRY }}"
+            echo "镜像名称: ${{ env.CODING_DOCKER_IMAGE }}"
+            echo "推送状态: ${{ github.event_name != 'pull_request' && '已推送' || '仅构建' }}"
+          else
+            echo "❌ ComfyUI Docker 镜像构建失败!"
+            echo "请检查上述诊断信息和构建日志"
+            exit 1
+          fi 

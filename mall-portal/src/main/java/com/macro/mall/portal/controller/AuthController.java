@@ -366,7 +366,42 @@ public class AuthController {
             return CommonResult.failed("重置失败: " + e.getMessage());
         }
     }
-    
+
+    @Operation(summary = "网关Token验证", description = "网关调用接口：验证Token的有效性")
+    @PostMapping("/validate-token")
+    public CommonResult<Object> validateTokenForGateway(
+            @Parameter(description = "待验证的Token", required = true)
+            @RequestParam @NotBlank(message = "Token不能为空") String token) {
+        try {
+            // 验证token格式和有效性
+            boolean isValid = jwtTokenUtil.validateAccessToken(token);
+
+            if (isValid) {
+                // 验证通过，获取用户信息
+                String username = jwtTokenUtil.getUsernameFromToken(token);
+                Long userId = jwtTokenUtil.getUserIdFromToken(token);
+                String userType = jwtTokenUtil.getUserTypeFromToken(token);
+
+                // 构建返回数据
+                Object tokenInfo = new Object() {
+                    public final String username = jwtTokenUtil.getUsernameFromToken(token);
+                    public final Long userId = jwtTokenUtil.getUserIdFromToken(token);
+                    public final String userType = jwtTokenUtil.getUserTypeFromToken(token);
+                    public final boolean valid = true;
+                };
+
+                log.debug("网关Token验证成功: username={}, userId={}", username, userId);
+                return CommonResult.success(tokenInfo, "Token验证成功");
+            } else {
+                log.warn("网关Token验证失败: token无效");
+                return CommonResult.failed("Token验证失败");
+            }
+        } catch (Exception e) {
+            log.error("网关Token验证异常", e);
+            return CommonResult.failed("Token验证异常: " + e.getMessage());
+        }
+    }
+
     /**
      * 从请求中提取Token
      */

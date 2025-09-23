@@ -1,0 +1,215 @@
+name: Build and Push Mall Docker Images
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+      - master
+    paths:
+      - 'mall-admin/**'
+      - 'mall-portal/**'
+      - '.github/workflows/docker-build.yml'
+
+env:
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  MALL_ADMIN_IMAGE: ${{ secrets.DOCKER_REGISTRY }}/mall/mall-admin
+  MALL_PORTAL_IMAGE: ${{ secrets.DOCKER_REGISTRY }}/mall/mall-portal
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 获取版本信息
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "IS_TAG=true" >> $GITHUB_ENV
+            echo "Version from tag: $VERSION"
+          else
+            COMMIT_SHA=$(git rev-parse --short HEAD)
+            VERSION="1.0-SNAPSHOT-${COMMIT_SHA}"
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "IS_TAG=false" >> $GITHUB_ENV
+            echo "Version from commit: $VERSION"
+          fi
+
+      - name: 设置 Java 环境
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: 缓存 Maven 依赖
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: 清理磁盘空间
+        run: |
+          echo "=== 清理前磁盘空间 ==="
+          df -h
+          echo "=== 清理大型预装软件 ==="
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /opt/az
+          echo "=== 清理 Docker 缓存 ==="
+          docker system prune -af --volumes || true
+          echo "=== 清理后磁盘空间 ==="
+          df -h
+
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:v0.12.5
+            network=host
+
+      - name: 检查必需的 Secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_REGISTRY }}" ]; then
+            echo "❌ DOCKER_REGISTRY secret 未配置"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DOCKER_USER }}" ]; then
+            echo "❌ DOCKER_USER secret 未配置"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DOCKER_TOKEN }}" ]; then
+            echo "❌ DOCKER_TOKEN secret 未配置"
+            exit 1
+          fi
+          echo "✅ 所有必需的 Secrets 已配置"
+
+      - name: 登录Docker容器镜像仓库
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: 构建 Maven 项目
+        run: |
+          echo "构建 Mall 项目..."
+          mvn clean package -DskipTests -pl mall-admin,mall-portal -am
+
+      - name: 监控系统资源
+        run: |
+          echo "=== 构建前系统资源检查 ==="
+          echo "CPU信息:"
+          nproc
+          echo "内存信息:"
+          free -h
+          echo "磁盘空间:"
+          df -h
+
+      - name: 构建并推送 Mall-Admin Docker 镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mall-admin
+          file: ./mall-admin/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64
+          tags: |
+            ${{ env.MALL_ADMIN_IMAGE }}:latest
+            ${{ env.MALL_ADMIN_IMAGE }}:${{ env.VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,ignore-error=true
+          build-args: |
+            VERSION=${{ env.VERSION }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+        timeout-minutes: 120
+
+      - name: 构建并推送 Mall-Portal Docker 镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mall-portal
+          file: ./mall-portal/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64
+          tags: |
+            ${{ env.MALL_PORTAL_IMAGE }}:latest
+            ${{ env.MALL_PORTAL_IMAGE }}:${{ env.VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,ignore-error=true
+          build-args: |
+            VERSION=${{ env.VERSION }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+        timeout-minutes: 120
+
+      - name: 构建后空间检查
+        if: always()
+        run: |
+          echo "=== 构建后磁盘空间 ==="
+          df -h
+          echo "=== Docker镜像大小 ==="
+          docker images | head -10
+
+      - name: 手动推送镜像
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          echo "构建失败，尝试手动推送..."
+
+          # 推送 mall-admin
+          if docker images | grep -q mall-admin; then
+            ADMIN_IMAGE_ID=$(docker images | grep mall-admin | head -n1 | awk '{print $3}')
+            echo "找到 mall-admin 镜像 ID: $ADMIN_IMAGE_ID"
+            docker tag $ADMIN_IMAGE_ID ${{ env.MALL_ADMIN_IMAGE }}:latest
+            docker tag $ADMIN_IMAGE_ID ${{ env.MALL_ADMIN_IMAGE }}:${{ env.VERSION }}
+            docker push ${{ env.MALL_ADMIN_IMAGE }}:latest || echo "推送 mall-admin latest 失败"
+            docker push ${{ env.MALL_ADMIN_IMAGE }}:${{ env.VERSION }} || echo "推送 mall-admin 版本标签失败"
+          fi
+
+          # 推送 mall-portal
+          if docker images | grep -q mall-portal; then
+            PORTAL_IMAGE_ID=$(docker images | grep mall-portal | head -n1 | awk '{print $3}')
+            echo "找到 mall-portal 镜像 ID: $PORTAL_IMAGE_ID"
+            docker tag $PORTAL_IMAGE_ID ${{ env.MALL_PORTAL_IMAGE }}:latest
+            docker tag $PORTAL_IMAGE_ID ${{ env.MALL_PORTAL_IMAGE }}:${{ env.VERSION }}
+            docker push ${{ env.MALL_PORTAL_IMAGE }}:latest || echo "推送 mall-portal latest 失败"
+            docker push ${{ env.MALL_PORTAL_IMAGE }}:${{ env.VERSION }} || echo "推送 mall-portal 版本标签失败"
+          fi
+
+      - name: 构建后清理
+        if: always()
+        run: |
+          echo "=== 构建后磁盘空间 ==="
+          df -h
+          echo "=== 清理构建缓存 ==="
+          docker system prune -af --volumes || true
+          echo "=== 最终磁盘空间 ==="
+          df -h
+
+      - name: 构建状态通知
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Mall Docker 镜像构建成功!"
+            echo "Mall-Admin 版本: ${{ env.VERSION }}"
+            echo "Mall-Portal 版本: ${{ env.VERSION }}"
+            echo "构建平台: linux/amd64"
+            echo "镜像仓库: ${{ env.DOCKER_REGISTRY }}"
+            echo "推送状态: ${{ github.event_name != 'pull_request' && '已推送' || '仅构建' }}"
+          else
+            echo "❌ Mall Docker 镜像构建失败!"
+            echo "请检查上述诊断信息和构建日志"
+            exit 1
+          fi
