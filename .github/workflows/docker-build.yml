@@ -6,8 +6,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - main
-      - master
+      - dev-v3
     paths:
       - 'mall-admin/**'
       - 'mall-portal/**'
