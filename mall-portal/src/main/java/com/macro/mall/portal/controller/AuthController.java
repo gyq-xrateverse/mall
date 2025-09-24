@@ -347,6 +347,29 @@ public class AuthController {
         }
     }
     
+    @Operation(summary = "获取验证码状态", description = "获取指定邮箱的验证码发送状态和剩余次数")
+    @GetMapping("/verification-code-status")
+    public CommonResult<Object> getVerificationCodeStatus(
+            @Parameter(description = "邮箱地址", required = true)
+            @RequestParam @NotBlank(message = "邮箱不能为空") String email) {
+        try {
+            int remainingTimes = verificationCodeService.getRemainingTimes(email);
+            long nextSendTime = verificationCodeService.getNextSendTime(email);
+
+            Object statusInfo = new Object() {
+                public final int remainingTimes = verificationCodeService.getRemainingTimes(email);
+                public final long nextSendTime = verificationCodeService.getNextSendTime(email);
+            };
+
+            log.debug("获取验证码状态成功: email={}, remainingTimes={}, nextSendTime={}",
+                     email, remainingTimes, nextSendTime);
+            return CommonResult.success(statusInfo);
+        } catch (Exception e) {
+            log.error("获取验证码状态异常: {}", email, e);
+            return CommonResult.failed("获取状态失败: " + e.getMessage());
+        }
+    }
+
     @Operation(summary = "重置邮箱发送次数", description = "管理员接口：重置指定邮箱的每日验证码发送次数限制")
     @PostMapping("/reset-send-limit")
     public CommonResult<String> resetSendLimit(
