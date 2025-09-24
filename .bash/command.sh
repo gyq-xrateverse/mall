@@ -17,18 +17,31 @@ docker compose -f /root/install/mall/docker-compose-env.yml up -d
 docker compose -f /root/install/mall/docker-compose-env.yml down
 
 
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
-
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
 
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest
 
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
 
+docker compose -f /root/install/mall/docker-compose-frontend.yml down
+
+docker compose -f /root/install/mall/docker-compose-frontend.yml up -d
+
+
+
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
+
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
+
+docker compose -f /root/install/mall/docker-compose-app.yml down
 
 docker compose -f /root/install/mall/docker-compose-app.yml up -d
 
-docker compose -f /root/install/mall/docker-compose-app.yml down
+
+
+docker-compose -f /root/install/mall/docker-compose-env.yml stop minio-init
+docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio-init
+docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio-init
+docker logs beilv_agent_minio_init -f
 
 
 # MiniIO
