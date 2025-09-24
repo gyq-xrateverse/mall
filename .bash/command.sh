@@ -16,6 +16,12 @@ docker compose -f /root/install/mall/docker-compose-env.yml up -d
 
 docker compose -f /root/install/mall/docker-compose-env.yml down
 
+
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
+
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
+
+
 docker compose -f /root/install/mall/docker-compose-app.yml up -d
 
 docker compose -f /root/install/mall/docker-compose-app.yml down

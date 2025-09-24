@@ -12,8 +12,8 @@ services:
       - 'TZ="Asia/Shanghai"'
       - 'SPRING_PROFILES_ACTIVE=prod'
     external_links:
-      - mysql:db #可以用db这个域名访问mysql服务
-      - minio:minio #可以用minio这个域名访问minio服务
+      - beilv_agent_mysql:db #可以用db这个域名访问mysql服务
+      - beilv_agent_minio:minio #可以用minio这个域名访问minio服务
   mall-portal:
     image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
     container_name: mall-portal
@@ -26,8 +26,8 @@ services:
       - 'TZ="Asia/Shanghai"'
       - 'SPRING_PROFILES_ACTIVE=prod'
     external_links:
-      - redis:redis #可以用redis这个域名访问redis服务
-      - mongo:mongo #可以用mongo这个域名访问mongo服务
-      - mysql:db #可以用db这个域名访问mysql服务
-      - rabbitmq:rabbit #可以用rabbit这个域名访问rabbitmq服务
-      - minio:minio #可以用minio这个域名访问minio服务
+      - beilv_agent_redis:redis #可以用redis这个域名访问redis服务
+      - beilv_agent_mongo:mongo #可以用mongo这个域名访问mongo服务
+      - beilv_agent_mysql:db #可以用db这个域名访问mysql服务
+      - beilv_agent_rabbitmq:rabbitmq #可以用rabbitmq这个域名访问rabbitmq服务
+      - beilv_agent_minio:minio #可以用minio这个域名访问minio服务

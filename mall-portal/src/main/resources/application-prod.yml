@@ -24,11 +24,11 @@ spring:
       password: # Redis服务器连接密码（默认为空）
       timeout: 300ms # 连接超时时间（毫秒）
   rabbitmq:
-    host: rabbit
+    host: rabbitmq
     port: 5672
-    virtual-host: /mall
-    username: mall
-    password: mall
+    virtual-host: /
+    username: guest
+    password: guest
 
 # 存储服务配置
 storage:
