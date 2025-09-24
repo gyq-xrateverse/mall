@@ -1,0 +1,29 @@
+version: '3'
+services:
+  mall-admin-web:
+    image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest
+    container_name: mall-admin-web
+    ports:
+      - 18091:80
+    volumes:
+      - /root/install/mall/frontend/mall-admin-web/logs:/var/log/nginx
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+    external_links:
+      - mall-admin:mall-admin # 可以用mall-admin这个域名访问后端服务
+    restart: unless-stopped
+
+  beilv-agent-web:
+    image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+    container_name: beilv-agent-web
+    ports:
+      - 18092:80
+    volumes:
+      - /root/install/mall/frontend/beilv-agent-web/logs:/var/log/nginx
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+    external_links:
+      - mall-portal:mall-portal # 可以用mall-portal这个域名访问后端服务
+    restart: unless-stopped
