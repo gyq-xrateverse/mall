@@ -23,7 +23,7 @@ spring:
 minio:
   endpoint: http://minio:9000 #MinIO服务所在地址（内部连接）
   publicEndpoint: http://localhost:9090 #MinIO外部访问地址（用于URL拼接）
-  bucketName: minio #存储桶名称
+  bucketName: minio-mall #存储桶名称
   accessKey: minioadmin #访问的key
   secretKey: minioadmin #访问的秘钥
 

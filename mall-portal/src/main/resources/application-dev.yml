@@ -36,7 +36,7 @@ storage:
 
 minio:
   endpoint: http://localhost:9090 #MinIO服务所在地址
-  bucketName: minio #存储桶名称
+  bucketName: minio-mall #存储桶名称
   accessKey: minioadmin
   secretKey: minioadmin
 
