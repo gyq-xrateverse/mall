@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -37,29 +39,32 @@ import java.util.UUID;
 @Slf4j
 @Validated
 public class AuthController {
-    
+
     @Autowired
     private AuthService authService;
-    
+
     @Autowired
     private OAuth2Service oauth2Service;
-    
+
     @Autowired
     private OAuth2Properties oauth2Properties;
-    
+
     @Autowired
     @Qualifier("portalJwtTokenUtil")
     private PortalJwtTokenUtil jwtTokenUtil;
-    
+
     @Autowired
     private TokenService tokenService;
-    
+
     @Autowired
     private VerificationCodeService verificationCodeService;
-    
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @Value("${jwt.tokenHead}")
     private String tokenHead;
-    
+
     @Operation(summary = "用户注册", description = "邮箱注册新用户账号")
     @PostMapping("/register")
     public CommonResult<AuthTokenResult> register(@Valid @RequestBody AuthRegisterParam param) {
@@ -72,7 +77,7 @@ public class AuthController {
             return CommonResult.failed(e.getMessage());
         }
     }
-    
+
     @Operation(summary = "用户登录", description = "邮箱密码登录")
     @PostMapping("/login")
     public CommonResult<AuthTokenResult> login(@Valid @RequestBody AuthLoginParam param) {
@@ -86,7 +91,7 @@ public class AuthController {
             return CommonResult.failed("邮箱或密码错误");
         }
     }
-    
+
     @Operation(summary = "邮箱验证码登录", description = "使用邮箱验证码登录，如果账号不存在会自动创建")
     @PostMapping("/login-with-code")
     public CommonResult<AuthTokenResult> loginWithEmailCode(@Valid @RequestBody EmailCodeLoginParam param) {
@@ -99,7 +104,7 @@ public class AuthController {
             return CommonResult.failed(e.getMessage());
         }
     }
-    
+
     @Operation(summary = "发送验证码", description = "向指定邮箱发送验证码")
     @PostMapping("/send-code")
     public CommonResult<String> sendVerificationCode(@Valid @RequestBody VerificationCodeParam param) {
@@ -117,7 +122,7 @@ public class AuthController {
             return CommonResult.failed("验证码发送异常: " + e.getMessage());
         }
     }
-    
+
     @Operation(summary = "重置密码", description = "通过验证码重置用户密码")
     @PostMapping("/reset-password")
     public CommonResult<String> resetPassword(@Valid @RequestBody ResetPasswordParam param) {
@@ -135,7 +140,7 @@ public class AuthController {
             return CommonResult.failed(e.getMessage());
         }
     }
-    
+
     @Operation(summary = "刷新Token", description = "使用刷新Token获取新的访问Token")
     @PostMapping("/refresh-token")
     public CommonResult<String> refreshToken(
@@ -166,7 +171,7 @@ public class AuthController {
             }
         }
     }
-    
+
     @Operation(summary = "获取用户信息", description = "根据Token获取当前用户信息")
     @GetMapping("/user-info")
     public CommonResult<UserInfoResult> getUserInfo(HttpServletRequest request) {
@@ -180,7 +185,7 @@ public class AuthController {
             if (userId == null) {
                 return CommonResult.validateFailed("Token无效");
             }
-            
+
             UserInfoResult userInfo = authService.getUserInfo(userId);
             return CommonResult.success(userInfo);
         } catch (Exception e) {
@@ -199,7 +204,7 @@ public class AuthController {
             }
         }
     }
-    
+
     @Operation(summary = "用户注销", description = "注销当前用户登录状态")
     @PostMapping("/logout")
     public CommonResult<String> logout(HttpServletRequest request) {
@@ -208,7 +213,7 @@ public class AuthController {
             if (token == null) {
                 return CommonResult.success("注销成功");
             }
-            
+
             boolean success = authService.logout(token);
             if (success) {
                 log.info("用户注销成功");
@@ -233,7 +238,7 @@ public class AuthController {
             }
         }
     }
-    
+
     @Operation(summary = "检查邮箱是否存在", description = "检查指定邮箱是否已被注册")
     @GetMapping("/check-email")
     public CommonResult<Boolean> checkEmailExists(
@@ -247,7 +252,7 @@ public class AuthController {
             return CommonResult.failed("检查失败");
         }
     }
-    
+
     @Operation(summary = "检查用户名是否存在", description = "检查指定用户名是否已被使用")
     @GetMapping("/check-username")
     public CommonResult<Boolean> checkUsernameExists(
@@ -261,7 +266,7 @@ public class AuthController {
             return CommonResult.failed("检查失败");
         }
     }
-    
+
     @Operation(summary = "微信OAuth2授权", description = "重定向到微信OAuth2授权页面")
     @GetMapping("/oauth2/wechat")
     public void wechatOAuth2(HttpServletResponse response) throws IOException {
@@ -272,12 +277,12 @@ public class AuthController {
             response.sendRedirect(authUrl);
         } catch (Exception e) {
             log.error("微信OAuth2授权失败", e);
-            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() + 
+            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() +
                     oauth2Properties.getFrontend().getAuthErrorRedirect() + "?error=wechat_auth_failed";
             response.sendRedirect(errorUrl);
         }
     }
-    
+
     @Operation(summary = "Google OAuth2授权", description = "重定向到Google OAuth2授权页面")
     @GetMapping("/oauth2/google")
     public void googleOAuth2(HttpServletResponse response) throws IOException {
@@ -288,82 +293,82 @@ public class AuthController {
             response.sendRedirect(authUrl);
         } catch (Exception e) {
             log.error("Google OAuth2授权失败", e);
-            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() + 
+            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() +
                     oauth2Properties.getFrontend().getAuthErrorRedirect() + "?error=google_auth_failed";
             response.sendRedirect(errorUrl);
         }
     }
-    
+
     @Operation(summary = "微信OAuth2回调", description = "处理微信OAuth2授权回调")
     @GetMapping("/oauth2/callback/wechat")
     public void wechatOAuth2Callback(
             @RequestParam String code,
             @RequestParam String state,
             HttpServletResponse response) throws IOException {
-        
+
         try {
             log.info("收到微信OAuth2回调: code={}, state={}", code, state);
-            
+
             // 获取微信用户信息
             OAuth2UserInfo userInfo = oauth2Service.getWeChatUserInfo(code, state);
-            
+
             // 处理登录
             AuthTokenResult tokenResult = oauth2Service.processOAuth2Login(userInfo, "wechat");
-            
+
             // 重定向到前端成功页面，带上token
-            String successUrl = String.format("%s%s?access_token=%s&refresh_token=%s&user_id=%s", 
+            String successUrl = String.format("%s%s?access_token=%s&refresh_token=%s&user_id=%s",
                     oauth2Properties.getFrontend().getBaseUrl(),
                     oauth2Properties.getFrontend().getAuthSuccessRedirect(),
                     tokenResult.getAccessToken(),
                     tokenResult.getRefreshToken(),
                     tokenResult.getUserInfo().getId());
-            
+
             log.info("微信OAuth2登录成功，用户ID: {}", tokenResult.getUserInfo().getId());
             response.sendRedirect(successUrl);
-            
+
         } catch (Exception e) {
             log.error("微信OAuth2回调处理失败", e);
-            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() + 
+            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() +
                     oauth2Properties.getFrontend().getAuthErrorRedirect() + "?error=wechat_callback_failed";
             response.sendRedirect(errorUrl);
         }
     }
-    
+
     @Operation(summary = "Google OAuth2回调", description = "处理Google OAuth2授权回调")
     @GetMapping("/oauth2/callback/google")
     public void googleOAuth2Callback(
             @RequestParam String code,
             @RequestParam String state,
             HttpServletResponse response) throws IOException {
-        
+
         try {
             log.info("收到Google OAuth2回调: code={}, state={}", code, state);
-            
+
             // 获取Google用户信息
             OAuth2UserInfo userInfo = oauth2Service.getGoogleUserInfo(code, state);
-            
+
             // 处理登录
             AuthTokenResult tokenResult = oauth2Service.processOAuth2Login(userInfo, "google");
-            
+
             // 重定向到前端成功页面，带上token
-            String successUrl = String.format("%s%s?access_token=%s&refresh_token=%s&user_id=%s", 
+            String successUrl = String.format("%s%s?access_token=%s&refresh_token=%s&user_id=%s",
                     oauth2Properties.getFrontend().getBaseUrl(),
                     oauth2Properties.getFrontend().getAuthSuccessRedirect(),
                     tokenResult.getAccessToken(),
                     tokenResult.getRefreshToken(),
                     tokenResult.getUserInfo().getId());
-            
+
             log.info("Google OAuth2登录成功，用户ID: {}", tokenResult.getUserInfo().getId());
             response.sendRedirect(successUrl);
-            
+
         } catch (Exception e) {
             log.error("Google OAuth2回调处理失败", e);
-            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() + 
+            String errorUrl = oauth2Properties.getFrontend().getBaseUrl() +
                     oauth2Properties.getFrontend().getAuthErrorRedirect() + "?error=google_callback_failed";
             response.sendRedirect(errorUrl);
         }
     }
-    
+
     @Operation(summary = "获取OAuth2配置信息", description = "获取前端所需的OAuth2配置信息")
     @GetMapping("/oauth2/config")
     public CommonResult<Object> getOAuth2Config() {
@@ -371,9 +376,9 @@ public class AuthController {
             return CommonResult.success(new Object() {
                 public final String wechatAuthUrl = "/api/auth/oauth2/wechat";
                 public final String googleAuthUrl = "/api/auth/oauth2/google";
-                public final boolean wechatEnabled = oauth2Properties.getClient().getWechat().getAppId() != null && 
+                public final boolean wechatEnabled = oauth2Properties.getClient().getWechat().getAppId() != null &&
                         !oauth2Properties.getClient().getWechat().getAppId().equals("your-wechat-app-id");
-                public final boolean googleEnabled = oauth2Properties.getClient().getGoogle().getClientId() != null && 
+                public final boolean googleEnabled = oauth2Properties.getClient().getGoogle().getClientId() != null &&
                         !oauth2Properties.getClient().getGoogle().getClientId().equals("your-google-client-id");
             });
         } catch (Exception e) {
@@ -381,7 +386,7 @@ public class AuthController {
             return CommonResult.failed("获取配置失败");
         }
     }
-    
+
     @Operation(summary = "获取验证码状态", description = "获取指定邮箱的验证码发送状态和剩余次数")
     @GetMapping("/verification-code-status")
     public CommonResult<Object> getVerificationCodeStatus(
@@ -510,6 +515,44 @@ public class AuthController {
                 // Token格式错误等客户端问题，返回400错误码
                 return CommonResult.validateFailed("用户下线失败: " + message);
             }
+        }
+    }
+
+    @Operation(summary = "测试登录", description = "测试接口：生成测试用的Token，5分钟过期")
+    @PostMapping("/test-login")
+    public CommonResult<AuthTokenResult> testLogin() {
+        try {
+            // 使用固定的测试用户信息
+            String testUsername = "553588070";
+            Long testUserId = 33L;
+            String testEmail = "test@example.com";
+
+            // 使用标准TokenService生成和存储token
+            Map<String, String> tokenPair = tokenService.generateTokenPair(testUsername, testUserId);
+            String accessToken = tokenPair.get("access_token");
+            String refreshToken = tokenPair.get("refresh_token");
+
+            // 构建返回结果
+            AuthTokenResult result = new AuthTokenResult();
+            result.setAccessToken(accessToken);
+            result.setRefreshToken(refreshToken);
+            result.setTokenType("Bearer");
+            result.setExpiresIn(86400L); // 24小时 = 86400秒
+
+            // 用户信息
+            UserInfoResult userInfo = new UserInfoResult();
+            userInfo.setId(testUserId);
+            userInfo.setUsername(testUsername);
+            userInfo.setEmail(testEmail);
+            userInfo.setNickname("测试用户");
+            result.setUserInfo(userInfo);
+
+            log.info("生成测试Token成功: username={}, userId={}, 过期时间=5分钟", testUsername, testUserId);
+            return CommonResult.success(result, "测试Token生成成功");
+
+        } catch (Exception e) {
+            log.error("生成测试Token异常", e);
+            return CommonResult.failed("生成测试Token失败: " + e.getMessage());
         }
     }
 
