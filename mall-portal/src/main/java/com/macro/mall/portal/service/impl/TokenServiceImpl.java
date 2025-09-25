@@ -38,10 +38,17 @@ public class TokenServiceImpl implements TokenService {
     
     private static final String TOKEN_BLACKLIST_PREFIX = "portal:token_blacklist:";
     private static final String REFRESH_TOKEN_PREFIX = "portal:refresh_token:";
+    private static final String ACCESS_TOKEN_PREFIX = "portal:access_token:";
     
     @Override
     public String generateAccessToken(String username, Long userId) {
-        return jwtTokenUtil.generateAccessToken(username, userId);
+        String accessToken = jwtTokenUtil.generateAccessToken(username, userId);
+
+        // 将access token存储到Redis中，过期时间与JWT token一致
+        String key = ACCESS_TOKEN_PREFIX + username + ":" + userId;
+        redisTemplate.opsForValue().set(key, accessToken, 24, TimeUnit.HOURS);
+
+        return accessToken;
     }
     
     @Override
@@ -93,16 +100,16 @@ public class TokenServiceImpl implements TokenService {
                 log.warn("Invalid refresh token");
                 return null;
             }
-            
+
             // 从刷新token中提取用户信息
             String username = jwtTokenUtil.getUsernameFromToken(refreshToken);
             Long userId = jwtTokenUtil.getUserIdFromToken(refreshToken);
-            
+
             if (username == null || userId == null) {
                 log.warn("Invalid refresh token: missing user info");
                 return null;
             }
-            
+
             // 检查刷新token是否存在于Redis中
             String key = REFRESH_TOKEN_PREFIX + username;
             String storedRefreshToken = redisTemplate.opsForValue().get(key);
@@ -110,13 +117,13 @@ public class TokenServiceImpl implements TokenService {
                 log.warn("Refresh token not found or mismatched for user: {}", username);
                 return null;
             }
-            
-            // 生成新的访问token
-            return jwtTokenUtil.generateAccessToken(username, userId);
-            
+
+            // 生成新的访问token（会自动存储到Redis）
+            return generateAccessToken(username, userId);
+
         } catch (Exception e) {
-            log.error("Failed to refresh access token", e);
-            return null;
+            log.error("Token刷新失败: Redis操作异常", e);
+            throw new RuntimeException("Redis操作异常", e);
         }
     }
     
@@ -127,10 +134,16 @@ public class TokenServiceImpl implements TokenService {
             if (isTokenRevoked(token)) {
                 return false;
             }
-            
+
+            // 先检查Redis中是否存在该token
+            if (!isTokenExistsInRedis(token)) {
+                log.warn("Token not found in Redis, treating as invalid");
+                return false;
+            }
+
             // 使用专用的验证方法
             return jwtTokenUtil.validateAccessToken(token);
-            
+
         } catch (Exception e) {
             log.error("Token validation failed", e);
             return false;
@@ -165,17 +178,48 @@ public class TokenServiceImpl implements TokenService {
             String key = TOKEN_BLACKLIST_PREFIX + token;
             // 设置过期时间为token的剩余有效期
             redisTemplate.opsForValue().set(key, "revoked", 24, TimeUnit.HOURS);
-            
-            // 同时删除关联的刷新token
+
+            // 从Redis中删除access token
             String username = getUsernameFromToken(token);
-            if (username != null) {
+            Long userId = getUserIdFromToken(token);
+            if (username != null && userId != null) {
+                String accessTokenKey = ACCESS_TOKEN_PREFIX + username + ":" + userId;
+                redisTemplate.delete(accessTokenKey);
+
+                // 同时删除关联的刷新token
                 String refreshKey = REFRESH_TOKEN_PREFIX + username;
                 redisTemplate.delete(refreshKey);
             }
-            
+
             log.info("Token revoked successfully");
         } catch (Exception e) {
-            log.error("Failed to revoke token", e);
+            log.error("Token注销失败: Redis操作异常", e);
+            throw new RuntimeException("Redis操作异常", e);
+        }
+    }
+
+    @Override
+    public void revokeTokenWithUserInfo(String token, String username, Long userId) {
+        try {
+            // 将token添加到黑名单
+            String key = TOKEN_BLACKLIST_PREFIX + token;
+            // 设置过期时间为token的剩余有效期
+            redisTemplate.opsForValue().set(key, "revoked", 24, TimeUnit.HOURS);
+
+            // 从Redis中删除access token（使用传入的用户信息，避免重复解析token）
+            if (username != null && userId != null) {
+                String accessTokenKey = ACCESS_TOKEN_PREFIX + username + ":" + userId;
+                redisTemplate.delete(accessTokenKey);
+
+                // 同时删除关联的刷新token
+                String refreshKey = REFRESH_TOKEN_PREFIX + username;
+                redisTemplate.delete(refreshKey);
+            }
+
+            log.info("Token revoked successfully with user info: username={}, userId={}", username, userId);
+        } catch (Exception e) {
+            log.error("Token注销失败: Redis操作异常", e);
+            throw new RuntimeException("Redis操作异常", e);
         }
     }
     
@@ -211,6 +255,25 @@ public class TokenServiceImpl implements TokenService {
         return jwtTokenUtil.getRegisterTypeFromToken(token);
     }
     
+    /**
+     * 检查token是否在Redis中存在
+     */
+    private boolean isTokenExistsInRedis(String token) {
+        try {
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            Long userId = jwtTokenUtil.getUserIdFromToken(token);
+            if (username != null && userId != null) {
+                String key = ACCESS_TOKEN_PREFIX + username + ":" + userId;
+                String storedToken = redisTemplate.opsForValue().get(key);
+                return storedToken != null && storedToken.equals(token);
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Redis连接异常: {}", e.getMessage());
+            throw new RuntimeException("Redis connection failed", e);
+        }
+    }
+
     /**
      * 根据用户名查找用户
      */

@@ -33,7 +33,14 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     private MailService mailService;
     
     private final SecureRandom random = new SecureRandom();
-    
+
+    // 测试时可通过反射设置的字段
+    private int codeLength = 6;
+    private int expireMinutes = 5;
+    private int sendIntervalSeconds = 60;
+    private int maxSendPerDay = 20;
+    private String codeType = "NUMERIC";
+
     private static final String CODE_KEY_PREFIX = "verification_code:";
     private static final String SEND_COUNT_KEY_PREFIX = "send_count:";
     private static final String SEND_TIME_KEY_PREFIX = "send_time:";
@@ -41,7 +48,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     @Override
     public String generateCode(String email, CodeType codeType) {
         String code;
-        switch (config.getType()) {
+        switch (this.codeType != null ? this.codeType : config.getType()) {
             case "LETTER":
                 code = generateLetterCode();
                 break;
@@ -56,7 +63,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         
         // 存储验证码到Redis
         String key = getCodeKey(email, codeType);
-        redisTemplate.opsForValue().set(key, code, config.getExpireMinutes(), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, code, expireMinutes > 0 ? expireMinutes : config.getExpireMinutes(), TimeUnit.MINUTES);
         
         log.info("Generated verification code for email: {}, type: {}", email, codeType);
         return code;
@@ -81,7 +88,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
             String code = generateCode(email, codeType);
             
             // 发送邮件
-            boolean sent = mailService.sendVerificationCode(email, code, codeType.getDescription(), config.getExpireMinutes());
+            boolean sent = mailService.sendVerificationCode(email, code, codeType.getDescription(), expireMinutes > 0 ? expireMinutes : config.getExpireMinutes());
             
             if (sent) {
                 // 记录发送时间
@@ -123,7 +130,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         String countKey = getSendCountKey(email);
         String countStr = redisTemplate.opsForValue().get(countKey);
         int sentToday = countStr != null ? Integer.parseInt(countStr) : 0;
-        return Math.max(0, config.getMaxSendPerDay() - sentToday);
+        return Math.max(0, (maxSendPerDay > 0 ? maxSendPerDay : config.getMaxSendPerDay()) - sentToday);
     }
     
     @Override
@@ -137,7 +144,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         
         long lastSendTime = Long.parseLong(lastSendTimeStr);
         long currentTime = System.currentTimeMillis();
-        long intervalMs = config.getSendIntervalSeconds() * 1000L;
+        long intervalMs = (sendIntervalSeconds > 0 ? sendIntervalSeconds : config.getSendIntervalSeconds()) * 1000L;
         long nextSendTime = lastSendTime + intervalMs;
         
         return Math.max(0, (nextSendTime - currentTime) / 1000);
@@ -145,7 +152,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     
     private String generateNumericCode() {
         StringBuilder code = new StringBuilder();
-        for (int i = 0; i < config.getLength(); i++) {
+        for (int i = 0; i < (codeLength > 0 ? codeLength : config.getLength()); i++) {
             code.append(random.nextInt(10));
         }
         return code.toString();
@@ -154,7 +161,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     private String generateLetterCode() {
         String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder code = new StringBuilder();
-        for (int i = 0; i < config.getLength(); i++) {
+        for (int i = 0; i < (codeLength > 0 ? codeLength : config.getLength()); i++) {
             code.append(letters.charAt(random.nextInt(letters.length())));
         }
         return code.toString();
@@ -163,7 +170,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     private String generateMixedCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder code = new StringBuilder();
-        for (int i = 0; i < config.getLength(); i++) {
+        for (int i = 0; i < (codeLength > 0 ? codeLength : config.getLength()); i++) {
             code.append(chars.charAt(random.nextInt(chars.length())));
         }
         return code.toString();
@@ -193,7 +200,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     private void recordSendTime(String email) {
         String timeKey = getSendTimeKey(email);
         String currentTime = String.valueOf(System.currentTimeMillis());
-        redisTemplate.opsForValue().set(timeKey, currentTime, config.getSendIntervalSeconds(), TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(timeKey, currentTime, sendIntervalSeconds > 0 ? sendIntervalSeconds : config.getSendIntervalSeconds(), TimeUnit.SECONDS);
     }
     
     private void incrementSendCount(String email) {

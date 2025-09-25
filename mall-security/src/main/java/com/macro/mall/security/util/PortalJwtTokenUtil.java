@@ -4,7 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -32,7 +34,11 @@ public class PortalJwtTokenUtil {
     private static final String USER_TYPE_MEMBER = "member";
     private static final String TOKEN_TYPE_ACCESS = "access";
     private static final String TOKEN_TYPE_REFRESH = "refresh";
-    
+    private static final String ACCESS_TOKEN_PREFIX = "portal:access_token:";
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @Value("${jwt.secret}")
     private String secret;
     
@@ -211,10 +217,16 @@ public class PortalJwtTokenUtil {
      * 验证访问token（非刷新token）
      */
     public boolean validateAccessToken(String token) {
+        // 先检查Redis中是否存在该token
+        if (!isTokenExistsInRedis(token)) {
+            log.warn("Token not found in Redis, treating as invalid");
+            return false;
+        }
+
         if (!validateToken(token)) {
             return false;
         }
-        
+
         String tokenType = getTokenTypeFromToken(token);
         return TOKEN_TYPE_ACCESS.equals(tokenType);
     }
@@ -274,5 +286,24 @@ public class PortalJwtTokenUtil {
     public boolean isTokenExpired(String token) {
         Date expiration = getExpirationDateFromToken(token);
         return expiration != null && expiration.before(new Date());
+    }
+
+    /**
+     * 检查token是否在Redis中存在
+     */
+    private boolean isTokenExistsInRedis(String token) {
+        try {
+            String username = getUsernameFromToken(token);
+            Long userId = getUserIdFromToken(token);
+            if (username != null && userId != null) {
+                String key = ACCESS_TOKEN_PREFIX + username + ":" + userId;
+                String storedToken = redisTemplate.opsForValue().get(key);
+                return storedToken != null && storedToken.equals(token);
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Redis连接异常: {}", e.getMessage());
+            throw new RuntimeException("Redis连接异常", e);
+        }
     }
 }

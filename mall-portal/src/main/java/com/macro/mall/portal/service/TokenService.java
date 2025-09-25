@@ -65,7 +65,15 @@ public interface TokenService {
      * @param token 要注销的token
      */
     void revokeToken(String token);
-    
+
+    /**
+     * 注销token（使用预获取的用户信息，避免重复解析token）
+     * @param token 要注销的token
+     * @param username 用户名
+     * @param userId 用户ID
+     */
+    void revokeTokenWithUserInfo(String token, String username, Long userId);
+
     /**
      * 检查token是否已被注销
      * @param token 要检查的token
