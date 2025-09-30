@@ -18,7 +18,7 @@ if ! mc admin info minio >/dev/null 2>&1; then
 fi
 
 # 定义需要创建的bucket列表
-BUCKETS=("test-mall" "minio-mall")
+BUCKETS=("test-mall" "minio-mall" "minio-agent")
 
 # 为每个bucket进行配置
 for BUCKET in "${BUCKETS[@]}"; do

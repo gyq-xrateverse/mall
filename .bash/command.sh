@@ -43,6 +43,11 @@ docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio-init
 docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio-init
 docker logs beilv_agent_minio_init -f
 
+docker-compose -f /root/install/mall/docker-compose-env.yml stop new-api
+docker-compose -f /root/install/mall/docker-compose-env.yml rm -f new-api
+docker-compose -f /root/install/mall/docker-compose-env.yml up -d new-api
+docker logs beilv_agent_new_api -f
+
 
 # MiniIO
 ## 配置连接
