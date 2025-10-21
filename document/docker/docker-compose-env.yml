@@ -120,7 +120,7 @@ services:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
   new-api:
-    image: calciumion/new-api:latest
+    image: crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/new-api:latest
     container_name: beilv_agent_new_api
     restart: always
     command: --log-dir /app/logs
