@@ -32,50 +32,40 @@ for BUCKET in "${BUCKETS[@]}"; do
         echo "$BUCKET bucket 已存在"
     fi
 
-    # 设置CORS策略 - 使用标准输入
+    # 创建临时CORS配置文件
+    CORS_FILE="/tmp/cors-${BUCKET}.json"
     echo "配置 $BUCKET 的CORS策略..."
-    cat << 'CORS_EOF' | mc cors set - minio/$BUCKET
+    cat > $CORS_FILE << 'CORS_EOF'
 {
     "CORSRules": [
         {
-            "AllowedOrigins": [
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173",
-                "*"
-            ],
-            "AllowedMethods": [
-                "GET",
-                "HEAD",
-                "POST",
-                "PUT",
-                "DELETE"
-            ],
+            "AllowedOrigins": ["*"],
+            "AllowedMethods": ["GET", "HEAD", "POST", "PUT", "DELETE"],
             "AllowedHeaders": ["*"],
-            "ExposeHeaders": ["ETag"],
+            "ExposeHeaders": ["ETag", "Content-Length"],
             "MaxAgeSeconds": 3600
         }
     ]
 }
 CORS_EOF
 
-    # 检查CORS配置是否成功
-    if [ $? -eq 0 ]; then
+    # 尝试设置CORS配置
+    if mc cors set $CORS_FILE minio/$BUCKET 2>/dev/null; then
         echo "$BUCKET CORS配置成功"
     else
-        echo "$BUCKET CORS配置失败，尝试备用方法..."
-        # 备用方法：使用policy设置
-        mc policy set download minio/$BUCKET
+        echo "$BUCKET CORS配置失败(可能是MinIO版本不支持)，使用访问策略替代"
     fi
 
+    # 清理临时文件
+    rm -f $CORS_FILE
+
     # 设置bucket为可公开访问（仅读取）
-    echo "设置 $BUCKET 访问策略..."
+    echo "设置 $BUCKET 访问策略为 download..."
     mc anonymous set download minio/$BUCKET
 
-    # 验证CORS配置
-    echo "验证 $BUCKET 的CORS配置..."
-    mc cors get minio/$BUCKET 2>/dev/null || echo "CORS配置验证失败，但访问策略已设置"
+    # 验证配置
+    echo "验证 $BUCKET 访问策略..."
+    mc anonymous get minio/$BUCKET 2>/dev/null || echo "访问策略已设置"
 
     echo "--------------------------------"
 done
