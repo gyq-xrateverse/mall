@@ -1,4 +1,13 @@
+ALIYUN_DOCKER_REGISTRY
+crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com
 
+ALIYUN_DOCKER_USER
+nick8409546819
+
+ALIYUN_DOCKER_TOKEN
+beilv_docker_123
+
+docker login crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com
 
 
 sudo chown -R 1000:1000 /root/install/mall
@@ -38,10 +47,23 @@ docker compose -f /root/install/mall/docker-compose-app.yml up -d
 
 
 
+docker-compose -f /root/install/mall/docker-compose-env.yml stop minio
+docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio
+docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio
+docker logs beilv_agent_minio -f
+
+
 docker-compose -f /root/install/mall/docker-compose-env.yml stop minio-init
 docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio-init
 docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio-init
 docker logs beilv_agent_minio_init -f
+
+
+docker-compose -f /root/install/mall/docker-compose-env.yml stop nginx
+docker-compose -f /root/install/mall/docker-compose-env.yml rm -f nginx
+docker-compose -f /root/install/mall/docker-compose-env.yml up -d nginx
+docker logs beilv_agent_nginx -f
+
 
 docker-compose -f /root/install/mall/docker-compose-env.yml stop new-api
 docker-compose -f /root/install/mall/docker-compose-env.yml rm -f new-api
