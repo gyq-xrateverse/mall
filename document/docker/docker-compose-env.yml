@@ -29,7 +29,7 @@ services:
       - /root/install/mall/nginx/html:/usr/share/nginx/html #静态资源根目录挂载
       - /root/install/mall/nginx/logs:/var/log/nginx #日志文件目录挂载
     ports:
-      - 8880:80
+      - 80:80
   rabbitmq:
     image: rabbitmq:3.9.11-management
     container_name: beilv_agent_rabbitmq
@@ -97,7 +97,7 @@ services:
       - "MINIO_ROOT_USER=minioadmin"
       - "MINIO_ROOT_PASSWORD=minioadmin"
       # 启用CORS支持
-      - "MINIO_BROWSER_REDIRECT_URL=http://localhost:9001"
+      - "MINIO_BROWSER_REDIRECT_URL=http://minio.xrateverse.com/console"
     ports:
       - 9090:9000
       - 9001:9001
@@ -125,7 +125,7 @@ services:
     restart: always
     command: --log-dir /app/logs
     ports:
-      - "13001:3000"
+      - "13000:3000"
     volumes:
       - /root/install/mall/new-api/data:/data
       - /root/install/mall/new-api/logs:/app/logs
