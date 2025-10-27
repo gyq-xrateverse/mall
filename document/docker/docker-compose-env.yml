@@ -6,7 +6,7 @@ services:
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root #设置root帐号密码
+      MYSQL_ROOT_PASSWORD: G#Ngk5gm6s7df8s! #设置root帐号密码
     ports:
       - 3306:3306
     volumes:
@@ -130,7 +130,7 @@ services:
       - /root/install/mall/new-api/data:/data
       - /root/install/mall/new-api/logs:/app/logs
     environment:
-      - SQL_DSN=root:root@tcp(beilv_agent_mysql:3306)/new-api
+      - SQL_DSN=root:G#Ngk5gm6s7df8s!@tcp(beilv_agent_mysql:3306)/new-api
       - REDIS_CONN_STRING=redis://beilv_agent_redis:6379
       - TZ=Asia/Shanghai
     depends_on:

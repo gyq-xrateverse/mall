@@ -21,53 +21,62 @@ sudo chmod 600 /root/install/mall/rabbitmq/data/.erlang.cookie
 sudo chown 999:999 /root/install/mall/rabbitmq/data/.erlang.cookie
 
 
-docker compose -f /root/install/mall/docker-compose-env.yml up -d
+
 
 docker compose -f /root/install/mall/docker-compose-env.yml down
-
+docker compose -f /root/install/mall/docker-compose-env.yml up -d
 
 
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest
-
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
-
 docker compose -f /root/install/mall/docker-compose-frontend.yml down
-
 docker compose -f /root/install/mall/docker-compose-frontend.yml up -d
 
 
-
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
-
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
+docker compose -f /root/install/mall/docker-compose-app.yml down
+docker compose -f /root/install/mall/docker-compose-app.yml up -d
 
+docker compose -f /root/install/mall/docker-compose-env.yml down
+docker compose -f /root/install/mall/docker-compose-frontend.yml down
 docker compose -f /root/install/mall/docker-compose-app.yml down
 
+docker compose -f /root/install/mall/docker-compose-env.yml up -d
+docker compose -f /root/install/mall/docker-compose-frontend.yml up -d
 docker compose -f /root/install/mall/docker-compose-app.yml up -d
 
 
 
-docker-compose -f /root/install/mall/docker-compose-env.yml stop minio
-docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio
-docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio
+docker compose -f /root/install/mall/docker-compose-env.yml down
+docker compose -f /root/install/mall/docker-compose-env.yml up -d
+docker compose -f /root/install/mall/docker-compose-frontend.yml down
+docker compose -f /root/install/mall/docker-compose-frontend.yml up -d
+docker compose -f /root/install/mall/docker-compose-app.yml down
+docker compose -f /root/install/mall/docker-compose-app.yml up -d
+
+
+docker compose -f /root/install/mall/docker-compose-env.yml stop minio
+docker compose -f /root/install/mall/docker-compose-env.yml rm -f minio
+docker compose -f /root/install/mall/docker-compose-env.yml up -d minio
 docker logs beilv_agent_minio -f
 
 
-docker-compose -f /root/install/mall/docker-compose-env.yml stop minio-init
-docker-compose -f /root/install/mall/docker-compose-env.yml rm -f minio-init
-docker-compose -f /root/install/mall/docker-compose-env.yml up -d minio-init
+docker compose -f /root/install/mall/docker-compose-env.yml stop minio-init
+docker compose -f /root/install/mall/docker-compose-env.yml rm -f minio-init
+docker compose -f /root/install/mall/docker-compose-env.yml up -d minio-init
 docker logs beilv_agent_minio_init -f
 
 
-docker-compose -f /root/install/mall/docker-compose-env.yml stop nginx
-docker-compose -f /root/install/mall/docker-compose-env.yml rm -f nginx
-docker-compose -f /root/install/mall/docker-compose-env.yml up -d nginx
+docker compose -f /root/install/mall/docker-compose-env.yml stop nginx
+docker compose -f /root/install/mall/docker-compose-env.yml rm -f nginx
+docker compose -f /root/install/mall/docker-compose-env.yml up -d nginx
 docker logs beilv_agent_nginx -f
 
 
-docker-compose -f /root/install/mall/docker-compose-env.yml stop new-api
-docker-compose -f /root/install/mall/docker-compose-env.yml rm -f new-api
-docker-compose -f /root/install/mall/docker-compose-env.yml up -d new-api
+docker compose -f /root/install/mall/docker-compose-env.yml stop new-api
+docker compose -f /root/install/mall/docker-compose-env.yml rm -f new-api
+docker compose -f /root/install/mall/docker-compose-env.yml up -d new-api
 docker logs beilv_agent_new_api -f
 
 
