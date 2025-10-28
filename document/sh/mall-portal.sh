@@ -13,6 +13,6 @@ docker run -p 8085:8085 --name ${app_name} \
 --link rabbitmq:rabbit \
 -e TZ="Asia/Shanghai" \
 -v /etc/localtime:/etc/localtime \
--v /root/install/mall/app/${app_name}/logs:/var/logs \
+-v /root/install/beilv-agent-deploy/app/${app_name}/logs:/var/logs \
 -d mall/${app_name}:1.0-SNAPSHOT
 echo '----start container----'
