@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Controller
 @Tag(name = "CaseCategoryController", description = "案例分类管理")
-@RequestMapping("/caseCategory")
+@RequestMapping("/admin/caseCategory")
 public class CaseCategoryController {
     
     @Autowired
