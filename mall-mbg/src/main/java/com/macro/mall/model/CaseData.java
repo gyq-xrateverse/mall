@@ -36,6 +36,21 @@ public class CaseData implements Serializable {
     private String video;
 
     /**
+     * 作品类型：video-视频, image-图片
+     */
+    private String type;
+
+    /**
+     * 作者名称
+     */
+    private String author;
+
+    /**
+     * 作者头像URL
+     */
+    private String authorAvatar;
+
+    /**
      * 标签，逗号分隔
      */
     private String tags;
@@ -125,6 +140,30 @@ public class CaseData implements Serializable {
         this.video = video;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getAuthorAvatar() {
+        return authorAvatar;
+    }
+
+    public void setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = authorAvatar;
+    }
+
     public String getTags() {
         return tags;
     }
@@ -201,6 +240,9 @@ public class CaseData implements Serializable {
         sb.append(", content=").append(content);
         sb.append(", image=").append(image);
         sb.append(", video=").append(video);
+        sb.append(", type=").append(type);
+        sb.append(", author=").append(author);
+        sb.append(", authorAvatar=").append(authorAvatar);
         sb.append(", tags=").append(tags);
         sb.append(", viewCount=").append(viewCount);
         sb.append(", likeCount=").append(likeCount);

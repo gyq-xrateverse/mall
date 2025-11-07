@@ -28,6 +28,20 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml u
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml up -d
 
 
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop elasticsearch
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down mongo
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop kibana
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop logstash
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start elasticsearch
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create mongo
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start mongo
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start kibana
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start logstash
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml restart redis
+
+
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d

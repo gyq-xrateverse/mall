@@ -15,6 +15,11 @@ public class CaseCategory implements Serializable {
     private String name;
 
     /**
+     * 分类英文标识(如branding, poster等)
+     */
+    private String label;
+
+    /**
      * 分类描述
      */
     private String description;
@@ -70,6 +75,14 @@ public class CaseCategory implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public String getDescription() {
@@ -144,6 +157,7 @@ public class CaseCategory implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
+        sb.append(", label=").append(label);
         sb.append(", description=").append(description);
         sb.append(", icon=").append(icon);
         sb.append(", sort=").append(sort);

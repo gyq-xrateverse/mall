@@ -8,6 +8,9 @@
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
     <result column="image" jdbcType="VARCHAR" property="image" />
     <result column="video" jdbcType="VARCHAR" property="video" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="author_avatar" jdbcType="VARCHAR" property="authorAvatar" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="view_count" jdbcType="BIGINT" property="viewCount" />
     <result column="like_count" jdbcType="BIGINT" property="likeCount" />
@@ -49,8 +52,8 @@
   </sql>
   
   <sql id="Base_Column_List">
-    id, category_id, title, content, image, video, tags, view_count, like_count,
-    hot_score, `status`, show_status, create_time, update_time
+    id, category_id, title, content, image, video, type, author, author_avatar, tags,
+    view_count, like_count, hot_score, `status`, show_status, create_time, update_time
   </sql>
   
   <select id="selectByExample" parameterType="com.macro.mall.model.CaseDataExample" resultMap="BaseResultMap">

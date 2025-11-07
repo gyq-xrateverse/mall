@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.macro.mall.model.CaseCategory">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="label" jdbcType="VARCHAR" property="label" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="icon" jdbcType="VARCHAR" property="icon" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
@@ -45,7 +46,7 @@
   </sql>
   
   <sql id="Base_Column_List">
-    id, `name`, description, icon, sort, `status`, show_status, case_count, create_time, update_time
+    id, `name`, label, description, icon, sort, `status`, show_status, case_count, create_time, update_time
   </sql>
   
   <select id="selectByExample" parameterType="com.macro.mall.model.CaseCategoryExample" resultMap="BaseResultMap">

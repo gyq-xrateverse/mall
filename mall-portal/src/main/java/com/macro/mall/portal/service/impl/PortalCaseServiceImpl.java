@@ -261,6 +261,24 @@ public class PortalCaseServiceImpl implements PortalCaseService {
             result.setVideoUrl(fileStorageService.buildUrl(caseData.getVideo()));
         }
 
+        // ========== 新增: 设置作品类型和缩略图 ==========
+        result.setType(caseData.getType());
+
+        // 根据类型设置thumbnail
+        if ("video".equals(caseData.getType())) {
+            result.setThumbnail(result.getVideoUrl());  // 视频类型用videoUrl
+        } else {
+            result.setThumbnail(result.getImageUrl());  // 图片类型用imageUrl
+        }
+
+        // ========== 新增: 设置作者信息 ==========
+        result.setAuthor(caseData.getAuthor());
+        result.setAuthorAvatar(caseData.getAuthorAvatar());
+
+        // ========== 新增: 设置views和likes别名 ==========
+        result.setViews(caseData.getViewCount());
+        result.setLikes(caseData.getLikeCount());
+
         if (StringUtils.hasText(caseData.getTags())) {
             String[] tagsArray = caseData.getTags().split(",");
             List<String> tagList = new ArrayList<>();
