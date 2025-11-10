@@ -265,3 +265,7 @@ app:
     clear-on-startup: ${CACHE_CLEAR_ON_STARTUP:true} # 启动时是否清理缓存
     clear-types: ${CACHE_CLEAR_TYPES:all} # 清理类型: all, case, category, hot, latest 用逗号分隔
 
+# 用户默认头像配置
+avatar:
+  default-url: https://api.dicebear.com/7.x/avataaars/svg?seed={username}&backgroundColor=b6e3f4
+

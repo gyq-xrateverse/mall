@@ -18,6 +18,7 @@ import com.macro.mall.portal.service.TokenService;
 import com.macro.mall.portal.service.VerificationCodeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -48,6 +49,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Value("${avatar.default-url}")
+    private String defaultAvatarUrl;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -92,6 +96,10 @@ public class AuthServiceImpl implements AuthService {
             member.getClass().getMethod("setEmailVerified", Integer.class).invoke(member, EmailVerifyStatus.VERIFIED.getCode());
             member.getClass().getMethod("setAccountStatus", Integer.class).invoke(member, AccountStatus.NORMAL.getCode());
             member.getClass().getMethod("setLastLoginTime", Date.class).invoke(member, new Date());
+            // 设置默认头像
+            String avatarUrl = generateDefaultAvatarUrl(param.getUsername());
+            member.getClass().getMethod("setAvatarUrl", String.class).invoke(member, avatarUrl);
+            log.info("用户注册设置默认头像: username={}, avatarUrl={}", param.getUsername(), avatarUrl);
         } catch (Exception e) {
             log.warn("设置用户扩展字段失败，可能需要先运行数据库扩展脚本", e);
             // 继续执行，不影响基本注册功能
@@ -346,6 +354,11 @@ public class AuthServiceImpl implements AuthService {
         member.setAccountStatus(AccountStatus.NORMAL.getCode());
         member.setLastLoginTime(new Date());
 
+        // 设置默认头像
+        String avatarUrl = generateDefaultAvatarUrl(username);
+        member.setAvatarUrl(avatarUrl);
+        log.info("邮箱验证码用户设置默认头像: username={}, avatarUrl={}", username, avatarUrl);
+
         // 插入用户
         int result = memberMapper.insert(member);
         if (result <= 0) {
@@ -503,10 +516,19 @@ public class AuthServiceImpl implements AuthService {
         member.setStatus(AccountStatus.NORMAL.getCode());
         member.setCreateTime(new Date());
 
+        // 设置头像：优先使用第三方提供的头像，如果没有则使用默认头像
+        String avatarUrl = userInfo.getAvatar();
+        if (avatarUrl == null || avatarUrl.isEmpty()) {
+            avatarUrl = generateDefaultAvatarUrl(username);
+            log.info("第三方用户未提供头像，使用默认头像: username={}, avatarUrl={}", username, avatarUrl);
+        } else {
+            log.info("第三方用户使用提供的头像: username={}, avatarUrl={}", username, avatarUrl);
+        }
+
         // 保存基本信息
         memberMapper.insert(member);
 
-        // 保存扩展信息
+        // 保存扩展信息（包括头像）
         updateThirdPartyInfo(member.getId(), userInfo, registerType);
 
         return member;
@@ -561,5 +583,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return username;
+    }
+
+    /**
+     * 生成默认头像URL
+     */
+    private String generateDefaultAvatarUrl(String username) {
+        if (defaultAvatarUrl == null || defaultAvatarUrl.isEmpty()) {
+            log.warn("默认头像URL未配置，使用空值");
+            return null;
+        }
+        return defaultAvatarUrl.replace("{username}", username != null ? username : "default");
     }
 }

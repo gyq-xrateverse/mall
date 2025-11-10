@@ -42,6 +42,10 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml restart redis
 
 
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down beilv-agent
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml create beilv-agent
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml start beilv-agent
+
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d
