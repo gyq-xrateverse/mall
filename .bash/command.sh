@@ -47,18 +47,21 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml create
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml start beilv-agent
 
 
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down mysql
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create mysql
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start mysql
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down minio
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create minio
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start minio
+
+
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml up -d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml up -d
-
-
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop minio
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml rm -f minio
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d minio
-docker logs beilv_agent_minio -f
 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop minio-init
