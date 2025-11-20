@@ -17,6 +17,8 @@ docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-age
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml up -d
 
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down
@@ -54,6 +56,10 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down minio
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create minio
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start minio
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down minio-init
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create minio-init
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start minio-init
 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
