@@ -35,7 +35,7 @@ storage:
   type: minio # 存储类型：minio、aliyun-oss
 
 minio:
-  endpoint: http://minio.ratev.ai #MinIO服务所在地址
+  endpoint: https://minio.ratev.ai #MinIO服务所在地址
   bucketName: minio-mall #存储桶名称
   accessKey: minioadmin
   secretKey: minioadmin

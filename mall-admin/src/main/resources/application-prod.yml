@@ -22,7 +22,7 @@ spring:
 
 minio:
   endpoint: http://beilv_agent_minio:9000 #MinIO服务所在地址（内部连接）
-  publicEndpoint: http://minio.ratev.ai #MinIO外部访问地址（用于URL拼接）
+  publicEndpoint: https://minio.ratev.ai #MinIO外部访问地址（用于URL拼接）
   bucketName: minio-mall #存储桶名称
   accessKey: minioadmin #访问的key
   secretKey: minioadmin #访问的秘钥
