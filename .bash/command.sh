@@ -1,9 +1,15 @@
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest && \
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest && \
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent:latest && \
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/new-api:latest && \
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest && \
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/new-api:latest
+
+
+
+
+
 
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
@@ -22,14 +28,19 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml up -d
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-databse.yml down
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down
 
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-databse.yml up -d
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml up -d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml up -d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml up -d
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down mall-admin
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down mall-admin-web
 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop elasticsearch
@@ -46,22 +57,33 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml restart redis
 
 docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent:latest
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down beilv-agent
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml create beilv-agent
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml start beilv-agent
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down beilv-agent-web
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml create beilv-agent-web
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml start beilv-agent-web
 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down mysql
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create mysql
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start mysql
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down minio
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create minio
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start minio
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down minio-init
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create minio-init
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start minio-init
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml down
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml up -d
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml down minio
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml create minio
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml start minio
+
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml down minio-init
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml create minio-init
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-minio.yml start minio-init
 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down
@@ -84,8 +106,7 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d 
 docker logs beilv_agent_nginx -f
 
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml stop new-api
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml rm -f new-api
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down new-api
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d new-api
 docker logs beilv_agent_new_api -f
 

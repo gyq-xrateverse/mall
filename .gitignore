@@ -9,3 +9,8 @@ target/
 .settings/
 .classpath
 .project
+
+document/sql
+
+# 项目信息
+project.info
