@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.portal.dao.UmsIntegrationFreezeMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.macro.mall.portal.domain.UmsIntegrationFreeze">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="member_id" jdbcType="BIGINT" property="memberId"/>
+        <result column="freeze_amount" jdbcType="INTEGER" property="freezeAmount"/>
+        <result column="business_id" jdbcType="VARCHAR" property="businessId"/>
+        <result column="business_type" jdbcType="VARCHAR" property="businessType"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deduct_time" jdbcType="TIMESTAMP" property="deductTime"/>
+        <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime"/>
+        <result column="operate_note" jdbcType="VARCHAR" property="operateNote"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, member_id, freeze_amount, business_id, business_type, status,
+        create_time, update_time, deduct_time, release_time, operate_note
+    </sql>
+
+    <!-- 插入冻结记录 -->
+    <insert id="insert" parameterType="com.macro.mall.portal.domain.UmsIntegrationFreeze"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ums_integration_freeze (
+            member_id,
+            freeze_amount,
+            business_id,
+            business_type,
+            status,
+            create_time,
+            operate_note
+        ) VALUES (
+            #{memberId,jdbcType=BIGINT},
+            #{freezeAmount,jdbcType=INTEGER},
+            #{businessId,jdbcType=VARCHAR},
+            #{businessType,jdbcType=VARCHAR},
+            #{status,jdbcType=INTEGER},
+            #{createTime,jdbcType=TIMESTAMP},
+            #{operateNote,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 选择性更新冻结记录 -->
+    <update id="updateByPrimaryKeySelective" parameterType="com.macro.mall.portal.domain.UmsIntegrationFreeze">
+        UPDATE ums_integration_freeze
+        <set>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="deductTime != null">
+                deduct_time = #{deductTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="releaseTime != null">
+                release_time = #{releaseTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operateNote != null">
+                operate_note = #{operateNote,jdbcType=VARCHAR},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 根据业务ID查询冻结记录 -->
+    <select id="selectByBusinessId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_integration_freeze
+        WHERE business_id = #{businessId,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据主键查询冻结记录 -->
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_integration_freeze
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 查询用户冻结中的积分总额 -->
+    <select id="sumFrozenByMemberId" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(freeze_amount), 0)
+        FROM ums_integration_freeze
+        WHERE member_id = #{memberId,jdbcType=BIGINT}
+          AND status = 0
+    </select>
+
+    <!-- 根据会员ID和状态查询冻结记录列表 -->
+    <select id="selectByMemberIdAndStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_integration_freeze
+        WHERE member_id = #{memberId,jdbcType=BIGINT}
+          AND status = #{status,jdbcType=INTEGER}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 使用悲观锁查询冻结记录 -->
+    <select id="selectByBusinessIdForUpdate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM ums_integration_freeze
+        WHERE business_id = #{businessId,jdbcType=VARCHAR}
+        FOR UPDATE
+    </select>
+
+</mapper>

@@ -1,5 +1,6 @@
 package com.macro.mall.portal.config;
 
+import com.macro.mall.portal.component.ApiKeyAuthenticationFilter;
 import com.macro.mall.portal.component.PortalJwtAuthenticationTokenFilter;
 import com.macro.mall.security.component.RestAuthenticationEntryPoint;
 import com.macro.mall.security.component.RestfulAccessDeniedHandler;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 用于配置Portal用户的JWT认证过滤器链
  * @author Claude
  * @since 2025-09-15
+ * Updated by code-executor on 2026-01-05 - 添加API Key认证支持
  */
 @Configuration
 @EnableWebSecurity
@@ -36,6 +38,8 @@ public class PortalSecurityConfig {
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     @Autowired
     private PortalJwtAuthenticationTokenFilter portalJwtAuthenticationTokenFilter;
+    @Autowired
+    private ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
 
     @Bean("portalSecurityFilterChain")
     SecurityFilterChain portalFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -62,6 +66,8 @@ public class PortalSecurityConfig {
             .exceptionHandling(configurer ->
                 configurer.accessDeniedHandler(restfulAccessDeniedHandler)
                          .authenticationEntryPoint(restAuthenticationEntryPoint))
+            //使用API Key认证过滤器（优先级最高，用于积分管理接口）
+            .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             //使用Portal专用JWT过滤器
             .addFilterBefore(portalJwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
