@@ -22,6 +22,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setHeader("Cache-Control","no-cache");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 设置401状态码
         response.getWriter().println(JSONUtil.parse(CommonResult.unauthorized(authException.getMessage())));
         response.getWriter().flush();
     }
