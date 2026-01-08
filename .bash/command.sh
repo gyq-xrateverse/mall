@@ -67,6 +67,12 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml d
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml create beilv-agent-web
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml start beilv-agent-web
 
+# 临时外网
+docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web-foreign:latest
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down beilv-agent-web-foreign
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml create beilv-agent-web-foreign
+docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml start beilv-agent-web-foreign
+
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down mysql
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml create mysql
