@@ -60,9 +60,9 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         }
 
         if (currentIntegration < request.getFreezeAmount()) {
-            log.error("积分余额不足: memberId={}, current={}, required={}",
+            log.error("积分不足: memberId={}, current={}, required={}",
                 request.getMemberId(), currentIntegration, request.getFreezeAmount());
-            throw new ApiException("积分余额不足");
+            throw new ApiException("积分不足");
         }
 
         // 4. 扣减可用积分
@@ -71,7 +71,7 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         int updateResult = memberMapper.updateByPrimaryKeySelective(member);
         if (updateResult <= 0) {
             log.error("更新用户积分失败: memberId={}", request.getMemberId());
-            throw new ApiException("更新用户积分失败");
+            throw new ApiException("冻结失败");
         }
 
         log.info("用户积分已扣减: memberId={}, before={}, after={}",
@@ -90,7 +90,7 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         int insertResult = freezeMapper.insert(freeze);
         if (insertResult <= 0) {
             log.error("插入冻结记录失败: businessId={}", request.getBusinessId());
-            throw new ApiException("插入冻结记录失败");
+            throw new ApiException("冻结失败");
         }
 
         // 6. 删除用户缓存
