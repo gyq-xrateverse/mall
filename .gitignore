@@ -13,4 +13,4 @@ target/
 document/sql
 
 # 项目信息
-project.info
+**/project.info
