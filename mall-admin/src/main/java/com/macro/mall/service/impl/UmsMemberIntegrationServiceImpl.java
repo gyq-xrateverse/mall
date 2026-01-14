@@ -68,6 +68,9 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         return members.stream().map(member -> {
             UmsMemberIntegrationVO vo = new UmsMemberIntegrationVO();
             BeanUtils.copyProperties(member, vo);
+            // 查询并设置冻结积分
+            Integer frozenIntegration = freezeMapper.sumFrozenByMemberId(member.getId());
+            vo.setFreezeIntegration(frozenIntegration != null ? frozenIntegration : 0);
             return vo;
         }).collect(Collectors.toList());
     }

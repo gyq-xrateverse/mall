@@ -28,6 +28,9 @@ public class UmsMemberIntegrationVO {
     @Schema(title = "当前积分")
     private Integer integration;
 
+    @Schema(title = "冻结积分")
+    private Integer freezeIntegration;
+
     @Schema(title = "历史积分数量")
     private Integer historyIntegration;
 
@@ -104,6 +107,14 @@ public class UmsMemberIntegrationVO {
 
     public void setIntegration(Integer integration) {
         this.integration = integration;
+    }
+
+    public Integer getFreezeIntegration() {
+        return freezeIntegration;
+    }
+
+    public void setFreezeIntegration(Integer freezeIntegration) {
+        this.freezeIntegration = freezeIntegration;
     }
 
     public Integer getHistoryIntegration() {
