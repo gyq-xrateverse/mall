@@ -91,16 +91,16 @@ public class UmsMemberIntegrationController {
     @Operation(summary = "冻结积分")
     @RequestMapping(value = "/freeze", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult<Integer> freezeIntegration(@Valid @RequestBody UmsMemberFreezeParam param) {
-        int count = integrationService.freezeIntegration(
+    public CommonResult<UmsIntegrationFreeze> freezeIntegration(@Valid @RequestBody UmsMemberFreezeParam param) {
+        UmsIntegrationFreeze freeze = integrationService.freezeIntegration(
                 param.getMemberId(),
                 param.getAmount(),
                 param.getBusinessId(),
                 param.getBusinessType(),
                 param.getOperateNote()
         );
-        if (count > 0) {
-            return CommonResult.success(count);
+        if (freeze != null) {
+            return CommonResult.success(freeze);
         }
         return CommonResult.failed();
     }

@@ -198,7 +198,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote) {
+    public UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote) {
         try {
             // 使用悲观锁查询用户
             UmsMember member = memberDao.selectByIdForUpdate(memberId);
@@ -241,14 +241,14 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
             history.setCreateTime(new Date());
             historyMapper.insert(history);
 
-            return 1;
+            return freeze;
         } catch (DuplicateKeyException e) {
             // 幂等性：查询已存在的记录并验证状态（C2修复）
             UmsIntegrationFreezeExample checkExample = new UmsIntegrationFreezeExample();
             checkExample.createCriteria().andBusinessIdEqualTo(businessId);
             List<UmsIntegrationFreeze> existList = freezeMapper.selectByExample(checkExample);
             if (!existList.isEmpty() && existList.get(0).getStatus() == 0) {
-                return 1; // 状态为未处理，幂等返回成功
+                return existList.get(0); // 状态为未处理，幂等返回已存在的记录
             }
             throw new IllegalArgumentException("冻结记录已存在且已处理，无法重复冻结");
         }

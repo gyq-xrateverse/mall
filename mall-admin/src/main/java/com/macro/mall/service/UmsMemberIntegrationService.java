@@ -46,8 +46,9 @@ public interface UmsMemberIntegrationService {
 
     /**
      * 冻结积分
+     * @return 冻结记录对象
      */
-    int freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote);
+    UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote);
 
     /**
      * 解冻并扣减积分
