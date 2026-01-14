@@ -168,10 +168,10 @@ class UmsMemberIntegrationServiceTest {
         when(historyMapper.insert(any(UmsIntegrationChangeHistory.class))).thenReturn(1);
 
         // When
-        int result = integrationService.freezeIntegration(1L, 100, "ORDER123", 1, "订单冻结");
+        UmsIntegrationFreeze result = integrationService.freezeIntegration(1L, 100, "ORDER123", 1, "订单冻结");
 
         // Then
-        assertEquals(1, result);
+        assertNotNull(result);
         verify(freezeMapper, times(1)).insert(argThat(freeze ->
             freeze.getFreezeAmount() == 100 && freeze.getBusinessId().equals("ORDER123")
         ));
@@ -192,14 +192,16 @@ class UmsMemberIntegrationServiceTest {
             .thenThrow(new DuplicateKeyException("Duplicate key"));
 
         UmsIntegrationFreeze existingFreeze = new UmsIntegrationFreeze();
+        existingFreeze.setId(123L);
         existingFreeze.setStatus(0);
         when(freezeMapper.selectByExample(any())).thenReturn(Collections.singletonList(existingFreeze));
 
         // When
-        int result = integrationService.freezeIntegration(1L, 100, "ORDER123", 1, "订单冻结");
+        UmsIntegrationFreeze result = integrationService.freezeIntegration(1L, 100, "ORDER123", 1, "订单冻结");
 
         // Then
-        assertEquals(1, result);
+        assertNotNull(result);
+        assertEquals(123L, result.getId());
         verify(freezeMapper, times(1)).selectByExample(any());
     }
 

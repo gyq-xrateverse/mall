@@ -1,5 +1,6 @@
 package com.macro.mall.portal.service;
 
+import com.macro.mall.model.UmsIntegrationFreeze;
 import com.macro.mall.portal.domain.CreditBalanceResult;
 import com.macro.mall.portal.domain.CreditDeductRequest;
 import com.macro.mall.portal.domain.CreditFreezeRequest;
@@ -16,10 +17,10 @@ public interface UmsCreditService {
      * 冻结用户积分
      *
      * @param request 冻结请求参数，包含用户ID、冻结金额、业务ID等
-     * @return 冻结记录ID，用于后续扣减或释放操作
+     * @return 冻结记录对象，包含ID、用户ID、冻结金额等信息
      * @throws com.macro.mall.common.exception.BusinessException 当用户不存在、积分余额不足或请求参数无效时抛出
      */
-    Long freezeCredit(CreditFreezeRequest request);
+    UmsIntegrationFreeze freezeCredit(CreditFreezeRequest request);
 
     /**
      * 扣减已冻结的积分（任务成功场景）

@@ -1,6 +1,7 @@
 package com.macro.mall.portal.controller;
 
 import com.macro.mall.common.api.CommonResult;
+import com.macro.mall.model.UmsIntegrationFreeze;
 import com.macro.mall.portal.domain.CreditBalanceResult;
 import com.macro.mall.portal.domain.CreditDeductRequest;
 import com.macro.mall.portal.domain.CreditFreezeRequest;
@@ -35,17 +36,17 @@ public class UmsCreditController {
     @Operation(summary = "冻结用户积分",
         description = "冻结指定数量的用户积分，用于AI任务等场景。支持幂等性控制，相同businessId多次调用只会冻结一次")
     @PostMapping("/freeze")
-    public CommonResult<Long> freezeCredit(@Valid @RequestBody CreditFreezeRequest request) {
+    public CommonResult<UmsIntegrationFreeze> freezeCredit(@Valid @RequestBody CreditFreezeRequest request) {
         try {
             log.info("接收冻结积分请求: memberId={}, amount={}, businessId={}",
                 request.getMemberId(), request.getFreezeAmount(), request.getBusinessId());
 
-            Long freezeId = creditService.freezeCredit(request);
+            UmsIntegrationFreeze freeze = creditService.freezeCredit(request);
 
             log.info("冻结积分成功: freezeId={}, memberId={}, amount={}",
-                freezeId, request.getMemberId(), request.getFreezeAmount());
+                freeze.getId(), request.getMemberId(), request.getFreezeAmount());
 
-            return CommonResult.success(freezeId, "积分冻结成功");
+            return CommonResult.success(freeze, "积分冻结成功");
         } catch (Exception e) {
             log.error("冻结积分失败: memberId={}, amount={}, businessId={}",
                 request.getMemberId(), request.getFreezeAmount(), request.getBusinessId(), e);

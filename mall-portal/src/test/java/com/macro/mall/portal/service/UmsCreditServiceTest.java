@@ -98,10 +98,10 @@ public class UmsCreditServiceTest {
             doNothing().when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertNotNull(freezeId);
+            assertNotNull(result);
             verify(freezeMapper).selectByBusinessId(TEST_BUSINESS_ID);
             verify(memberMapper).selectByPrimaryKeyForUpdate(TEST_MEMBER_ID);
             verify(memberMapper).updateByPrimaryKeySelective(argThat(member ->
@@ -118,10 +118,10 @@ public class UmsCreditServiceTest {
             when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(testFreeze);
 
             // When
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertEquals(testFreeze.getId(), freezeId);
+            assertEquals(testFreeze.getId(), result.getId());
             verify(freezeMapper).selectByBusinessId(TEST_BUSINESS_ID);
             verify(memberMapper, never()).selectByPrimaryKeyForUpdate(anyLong());
             verify(memberMapper, never()).updateByPrimaryKeySelective(any());
@@ -219,10 +219,10 @@ public class UmsCreditServiceTest {
             doThrow(new RuntimeException("Redis连接失败")).when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When - 应该成功执行，缓存失败不影响主流程
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertNotNull(freezeId);
+            assertNotNull(result);
             verify(memberCacheService).delMember(TEST_MEMBER_ID);
         }
     }
@@ -594,10 +594,10 @@ public class UmsCreditServiceTest {
             doNothing().when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertNotNull(freezeId);
+            assertNotNull(result);
             verify(memberMapper).updateByPrimaryKeySelective(argThat(member ->
                     member.getIntegration() == TEST_CURRENT_INTEGRATION - 1
             ));
@@ -615,10 +615,10 @@ public class UmsCreditServiceTest {
             doNothing().when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertNotNull(freezeId);
+            assertNotNull(result);
             verify(memberMapper).updateByPrimaryKeySelective(argThat(member ->
                     member.getIntegration() == 0
             ));
@@ -638,10 +638,10 @@ public class UmsCreditServiceTest {
             doNothing().when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When
-            Long freezeId = creditService.freezeCredit(freezeRequest);
+            UmsIntegrationFreeze result = creditService.freezeCredit(freezeRequest);
 
             // Then
-            assertNotNull(freezeId);
+            assertNotNull(result);
             verify(memberMapper).updateByPrimaryKeySelective(argThat(member ->
                     member.getIntegration() == 1
             ));

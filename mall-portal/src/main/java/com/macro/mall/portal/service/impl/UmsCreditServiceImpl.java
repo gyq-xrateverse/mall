@@ -35,16 +35,16 @@ public class UmsCreditServiceImpl implements UmsCreditService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long freezeCredit(CreditFreezeRequest request) {
+    public UmsIntegrationFreeze freezeCredit(CreditFreezeRequest request) {
         log.info("开始冻结积分: memberId={}, amount={}, businessId={}",
             request.getMemberId(), request.getFreezeAmount(), request.getBusinessId());
 
         // 1. 幂等性检查
         UmsIntegrationFreeze existing = freezeMapper.selectByBusinessId(request.getBusinessId());
         if (existing != null) {
-            log.info("冻结记录已存在，返回已有记录ID: freezeId={}, businessId={}",
+            log.info("冻结记录已存在，返回已有记录: freezeId={}, businessId={}",
                 existing.getId(), request.getBusinessId());
-            return existing.getId();
+            return existing;
         }
 
         // 2. 使用悲观锁查询用户，防止并发问题
@@ -106,7 +106,7 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         log.info("积分冻结成功: freezeId={}, memberId={}, amount={}, businessId={}",
             freeze.getId(), request.getMemberId(), request.getFreezeAmount(), request.getBusinessId());
 
-        return freeze.getId();
+        return freeze;
     }
 
     @Override
