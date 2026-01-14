@@ -10,6 +10,7 @@ import com.macro.mall.portal.service.UmsCreditService;
 import com.macro.mall.portal.service.UmsMemberCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,22 +40,14 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         log.info("开始冻结积分: memberId={}, amount={}, businessId={}",
             request.getMemberId(), request.getFreezeAmount(), request.getBusinessId());
 
-        // 1. 幂等性检查
-        UmsIntegrationFreeze existing = freezeMapper.selectByBusinessId(request.getBusinessId());
-        if (existing != null) {
-            log.info("冻结记录已存在，返回已有记录: freezeId={}, businessId={}",
-                existing.getId(), request.getBusinessId());
-            return existing;
-        }
-
-        // 2. 使用悲观锁查询用户，防止并发问题
+        // 1. 使用悲观锁查询用户，防止并发问题
         UmsMember member = memberMapper.selectByPrimaryKeyForUpdate(request.getMemberId());
         if (member == null) {
             log.error("用户不存在: memberId={}", request.getMemberId());
             throw new ApiException("用户不存在");
         }
 
-        // 3. 检查积分余额
+        // 2. 检查积分余额
         Integer currentIntegration = member.getIntegration();
         if (currentIntegration == null) {
             currentIntegration = 0;
@@ -63,22 +56,10 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         if (currentIntegration < request.getFreezeAmount()) {
             log.error("积分不足: memberId={}, current={}, required={}",
                 request.getMemberId(), currentIntegration, request.getFreezeAmount());
-            throw new ApiException("积分不足");
+            throw new ApiException("积分余额不足");
         }
 
-        // 4. 扣减可用积分
-        int newIntegration = currentIntegration - request.getFreezeAmount();
-        member.setIntegration(newIntegration);
-        int updateResult = memberMapper.updateByPrimaryKeySelective(member);
-        if (updateResult <= 0) {
-            log.error("更新用户积分失败: memberId={}", request.getMemberId());
-            throw new ApiException("冻结失败");
-        }
-
-        log.info("用户积分已扣减: memberId={}, before={}, after={}",
-            request.getMemberId(), currentIntegration, newIntegration);
-
-        // 5. 插入冻结记录
+        // 3. 构建冻结记录
         UmsIntegrationFreeze freeze = new UmsIntegrationFreeze();
         freeze.setMemberId(request.getMemberId());
         freeze.setFreezeAmount(request.getFreezeAmount());
@@ -88,11 +69,42 @@ public class UmsCreditServiceImpl implements UmsCreditService {
         freeze.setCreateTime(new Date());
         freeze.setOperateNote(request.getNote() != null ? request.getNote() : "AI任务积分冻结");
 
-        int insertResult = freezeMapper.insert(freeze);
-        if (insertResult <= 0) {
-            log.error("插入冻结记录失败: businessId={}", request.getBusinessId());
-            throw new ApiException("冻结失败");
+        // 4. 先尝试插入冻结记录（依赖数据库唯一索引）
+        try {
+            int insertResult = freezeMapper.insert(freeze);
+            if (insertResult <= 0) {
+                log.error("插入冻结记录失败: businessId={}", request.getBusinessId());
+                throw new ApiException("冻结失败");
+            }
+        } catch (DuplicateKeyException e) {
+            // 幂等性处理：查询已存在的记录并验证状态
+            log.info("检测到重复业务ID，进行幂等性处理: businessId={}", request.getBusinessId());
+            UmsIntegrationFreeze existing = freezeMapper.selectByBusinessId(request.getBusinessId());
+
+            if (existing != null) {
+                if (existing.getStatus() == UmsIntegrationFreeze.Status.FROZEN) {
+                    log.info("冻结记录已存在且状态为冻结中，幂等返回: freezeId={}", existing.getId());
+                    return existing;
+                } else {
+                    log.error("冻结记录已存在但状态异常: status={}, businessId={}",
+                        existing.getStatus(), request.getBusinessId());
+                    throw new ApiException("业务ID已被使用且状态异常，无法重复冻结");
+                }
+            }
+            throw new ApiException("幂等性检查失败");
         }
+
+        // 5. 扣减可用积分
+        int newIntegration = currentIntegration - request.getFreezeAmount();
+        member.setIntegration(newIntegration);
+        int updateResult = memberMapper.updateByPrimaryKeySelective(member);
+        if (updateResult <= 0) {
+            log.error("更新用户积分失败: memberId={}", request.getMemberId());
+            throw new ApiException("更新用户积分失败");
+        }
+
+        log.info("用户积分已扣减: memberId={}, before={}, after={}",
+            request.getMemberId(), currentIntegration, newIntegration);
 
         // 6. 删除用户缓存
         try {

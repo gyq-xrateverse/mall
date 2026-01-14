@@ -34,6 +34,9 @@ public class UmsIntegrationChangeHistory implements Serializable {
     @Schema(title = "业务ID（如AI任务ID）")
     private String businessId;
 
+    @Schema(title = "业务类型（如：video_generation、AI_TASK等）")
+    private String businessType;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -118,6 +121,14 @@ public class UmsIntegrationChangeHistory implements Serializable {
         this.businessId = businessId;
     }
 
+    public String getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -134,6 +145,7 @@ public class UmsIntegrationChangeHistory implements Serializable {
         sb.append(", sourceType=").append(sourceType);
         sb.append(", creditType=").append(creditType);
         sb.append(", businessId=").append(businessId);
+        sb.append(", businessType=").append(businessType);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

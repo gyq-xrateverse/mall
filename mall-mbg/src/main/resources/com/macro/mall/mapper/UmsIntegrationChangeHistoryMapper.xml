@@ -10,6 +10,9 @@
     <result column="operate_man" jdbcType="VARCHAR" property="operateMan" />
     <result column="operate_note" jdbcType="VARCHAR" property="operateNote" />
     <result column="source_type" jdbcType="INTEGER" property="sourceType" />
+    <result column="credit_type" jdbcType="INTEGER" property="creditType" />
+    <result column="business_id" jdbcType="VARCHAR" property="businessId" />
+    <result column="business_type" jdbcType="VARCHAR" property="businessType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, member_id, create_time, change_type, change_count, operate_man, operate_note, 
-    source_type
+    id, member_id, create_time, change_type, change_count, operate_man, operate_note,
+    source_type, credit_type, business_id, business_type
   </sql>
   <select id="selectByExample" parameterType="com.macro.mall.model.UmsIntegrationChangeHistoryExample" resultMap="BaseResultMap">
     select
@@ -107,12 +110,14 @@
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into ums_integration_change_history (member_id, create_time, change_type, 
-      change_count, operate_man, operate_note, 
-      source_type)
-    values (#{memberId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{changeType,jdbcType=INTEGER}, 
-      #{changeCount,jdbcType=INTEGER}, #{operateMan,jdbcType=VARCHAR}, #{operateNote,jdbcType=VARCHAR}, 
-      #{sourceType,jdbcType=INTEGER})
+    insert into ums_integration_change_history (member_id, create_time, change_type,
+      change_count, operate_man, operate_note,
+      source_type, credit_type, business_id,
+      business_type)
+    values (#{memberId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{changeType,jdbcType=INTEGER},
+      #{changeCount,jdbcType=INTEGER}, #{operateMan,jdbcType=VARCHAR}, #{operateNote,jdbcType=VARCHAR},
+      #{sourceType,jdbcType=INTEGER}, #{creditType,jdbcType=INTEGER}, #{businessId,jdbcType=VARCHAR},
+      #{businessType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.macro.mall.model.UmsIntegrationChangeHistory">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -141,6 +146,15 @@
       <if test="sourceType != null">
         source_type,
       </if>
+      <if test="creditType != null">
+        credit_type,
+      </if>
+      <if test="businessId != null">
+        business_id,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="memberId != null">
@@ -163,6 +177,15 @@
       </if>
       <if test="sourceType != null">
         #{sourceType,jdbcType=INTEGER},
+      </if>
+      <if test="creditType != null">
+        #{creditType,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null">
+        #{businessId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -199,6 +222,15 @@
       <if test="row.sourceType != null">
         source_type = #{row.sourceType,jdbcType=INTEGER},
       </if>
+      <if test="row.creditType != null">
+        credit_type = #{row.creditType,jdbcType=INTEGER},
+      </if>
+      <if test="row.businessId != null">
+        business_id = #{row.businessId,jdbcType=VARCHAR},
+      </if>
+      <if test="row.businessType != null">
+        business_type = #{row.businessType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -213,7 +245,10 @@
       change_count = #{row.changeCount,jdbcType=INTEGER},
       operate_man = #{row.operateMan,jdbcType=VARCHAR},
       operate_note = #{row.operateNote,jdbcType=VARCHAR},
-      source_type = #{row.sourceType,jdbcType=INTEGER}
+      source_type = #{row.sourceType,jdbcType=INTEGER},
+      credit_type = #{row.creditType,jdbcType=INTEGER},
+      business_id = #{row.businessId,jdbcType=VARCHAR},
+      business_type = #{row.businessType,jdbcType=VARCHAR}
     <if test="example != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -242,6 +277,15 @@
       <if test="sourceType != null">
         source_type = #{sourceType,jdbcType=INTEGER},
       </if>
+      <if test="creditType != null">
+        credit_type = #{creditType,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -253,7 +297,10 @@
       change_count = #{changeCount,jdbcType=INTEGER},
       operate_man = #{operateMan,jdbcType=VARCHAR},
       operate_note = #{operateNote,jdbcType=VARCHAR},
-      source_type = #{sourceType,jdbcType=INTEGER}
+      source_type = #{sourceType,jdbcType=INTEGER},
+      credit_type = #{creditType,jdbcType=INTEGER},
+      business_id = #{businessId,jdbcType=VARCHAR},
+      business_type = #{businessType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

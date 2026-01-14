@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Date;
 
@@ -91,10 +92,9 @@ public class UmsCreditServiceTest {
         @DisplayName("冻结积分成功 - 正常流程")
         void testFreezeCreditSuccess() {
             // Given
-            when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(null);
             when(memberMapper.selectByPrimaryKeyForUpdate(TEST_MEMBER_ID)).thenReturn(testMember);
-            when(memberMapper.updateByPrimaryKeySelective(any(UmsMember.class))).thenReturn(1);
             when(freezeMapper.insert(any(UmsIntegrationFreeze.class))).thenReturn(1);
+            when(memberMapper.updateByPrimaryKeySelective(any(UmsMember.class))).thenReturn(1);
             doNothing().when(memberCacheService).delMember(TEST_MEMBER_ID);
 
             // When
@@ -102,19 +102,22 @@ public class UmsCreditServiceTest {
 
             // Then
             assertNotNull(result);
-            verify(freezeMapper).selectByBusinessId(TEST_BUSINESS_ID);
             verify(memberMapper).selectByPrimaryKeyForUpdate(TEST_MEMBER_ID);
+            verify(freezeMapper).insert(any(UmsIntegrationFreeze.class));
             verify(memberMapper).updateByPrimaryKeySelective(argThat(member ->
                     member.getIntegration() == TEST_CURRENT_INTEGRATION - TEST_FREEZE_AMOUNT
             ));
-            verify(freezeMapper).insert(any(UmsIntegrationFreeze.class));
             verify(memberCacheService).delMember(TEST_MEMBER_ID);
         }
 
         @Test
-        @DisplayName("冻结积分成功 - 幂等性返回已有记录")
-        void testFreezeCreditIdempotent() {
-            // Given - 记录已存在
+        @DisplayName("冻结积分成功 - DuplicateKeyException幂等性处理")
+        void testFreezeCreditDuplicateKeyHandling() {
+            // Given - 模拟数据库抛出DuplicateKeyException
+            testFreeze.setStatus(UmsIntegrationFreeze.Status.FROZEN);
+            when(memberMapper.selectByPrimaryKeyForUpdate(TEST_MEMBER_ID)).thenReturn(testMember);
+            when(freezeMapper.insert(any(UmsIntegrationFreeze.class)))
+                .thenThrow(new DuplicateKeyException("Duplicate entry"));
             when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(testFreeze);
 
             // When
@@ -122,17 +125,33 @@ public class UmsCreditServiceTest {
 
             // Then
             assertEquals(testFreeze.getId(), result.getId());
+            verify(freezeMapper).insert(any(UmsIntegrationFreeze.class));
             verify(freezeMapper).selectByBusinessId(TEST_BUSINESS_ID);
-            verify(memberMapper, never()).selectByPrimaryKeyForUpdate(anyLong());
+            verify(memberMapper, never()).updateByPrimaryKeySelective(any()); // 事务回滚，未扣减积分
+        }
+
+        @Test
+        @DisplayName("冻结积分失败 - 业务ID已被使用且已扣减")
+        void testFreezeCreditDuplicateKeyDeductedStatus() {
+            // Given - 已存在记录且状态为已扣减
+            testFreeze.setStatus(UmsIntegrationFreeze.Status.DEDUCTED);
+            when(memberMapper.selectByPrimaryKeyForUpdate(TEST_MEMBER_ID)).thenReturn(testMember);
+            when(freezeMapper.insert(any(UmsIntegrationFreeze.class)))
+                .thenThrow(new DuplicateKeyException("Duplicate entry"));
+            when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(testFreeze);
+
+            // When & Then
+            ApiException exception = assertThrows(ApiException.class, () ->
+                creditService.freezeCredit(freezeRequest)
+            );
+            assertTrue(exception.getMessage().contains("状态异常"));
             verify(memberMapper, never()).updateByPrimaryKeySelective(any());
-            verify(freezeMapper, never()).insert(any());
         }
 
         @Test
         @DisplayName("冻结积分失败 - 用户不存在")
         void testFreezeCreditUserNotFound() {
             // Given
-            when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(null);
             when(memberMapper.selectByPrimaryKeyForUpdate(TEST_MEMBER_ID)).thenReturn(null);
 
             // When & Then
@@ -149,7 +168,6 @@ public class UmsCreditServiceTest {
         void testFreezeCreditInsufficientBalance() {
             // Given - 余额不足
             testMember.setIntegration(50); // 小于冻结金额100
-            when(freezeMapper.selectByBusinessId(TEST_BUSINESS_ID)).thenReturn(null);
             when(memberMapper.selectByPrimaryKeyForUpdate(TEST_MEMBER_ID)).thenReturn(testMember);
 
             // When & Then

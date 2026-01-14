@@ -238,6 +238,8 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
             history.setSourceType(9); // 9->冻结
             history.setOperateMan(getCurrentUsername());
             history.setOperateNote(operateNote);
+            history.setBusinessId(businessId);
+            history.setBusinessType(String.valueOf(businessType));
             history.setCreateTime(new Date());
             historyMapper.insert(history);
 
@@ -284,6 +286,8 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setSourceType(sourceType); // 7->订单支付 或 8->订单取消
         history.setOperateMan("系统");
         history.setOperateNote("解冻并扣减积分"); // N1修复：添加操作说明
+        history.setBusinessId(freeze.getBusinessId());
+        history.setBusinessType(freeze.getBusinessType());
         history.setCreateTime(new Date());
         historyMapper.insert(history);
 
@@ -332,6 +336,8 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setSourceType(10); // 10->释放
         history.setOperateMan("系统");
         history.setOperateNote(operateNote);
+        history.setBusinessId(freeze.getBusinessId());
+        history.setBusinessType(freeze.getBusinessType());
         history.setCreateTime(new Date());
         historyMapper.insert(history);
 
