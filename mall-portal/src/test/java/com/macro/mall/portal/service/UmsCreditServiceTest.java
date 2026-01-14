@@ -2,8 +2,9 @@ package com.macro.mall.portal.service;
 
 import com.macro.mall.common.exception.ApiException;
 import com.macro.mall.mapper.UmsMemberMapper;
+import com.macro.mall.mapper.UmsIntegrationFreezeMapper;
 import com.macro.mall.model.UmsMember;
-import com.macro.mall.portal.dao.UmsIntegrationFreezeMapper;
+import com.macro.mall.model.UmsIntegrationFreeze;
 import com.macro.mall.portal.domain.*;
 import com.macro.mall.portal.service.impl.UmsCreditServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
