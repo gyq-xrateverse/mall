@@ -124,13 +124,22 @@ public class UmsCreditServiceImpl implements UmsCreditService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deductCredit(CreditDeductRequest request) {
-        log.info("开始扣减积分: businessId={}", request.getBusinessId());
+        log.info("开始扣减积分: businessId={}, businessType={}",
+            request.getBusinessId(), request.getBusinessType());
 
-        // 1. 查询冻结记录
-        UmsIntegrationFreeze freeze = freezeMapper.selectByBusinessId(request.getBusinessId());
+        // 1. 查询冻结记录（使用新方法，精确匹配）
+        UmsIntegrationFreeze freeze = freezeMapper.selectByBusinessIdAndType(
+            request.getBusinessId(),
+            request.getBusinessType()
+        );
+
         if (freeze == null) {
-            log.error("冻结记录不存在: businessId={}", request.getBusinessId());
-            throw new ApiException("冻结记录不存在");
+            log.error("冻结记录不存在: businessId={}, businessType={}",
+                request.getBusinessId(), request.getBusinessType());
+            throw new ApiException(String.format(
+                "冻结记录不存在：businessId=%s, businessType=%s",
+                request.getBusinessId(), request.getBusinessType()
+            ));
         }
 
         // 2. 幂等性检查
@@ -165,13 +174,22 @@ public class UmsCreditServiceImpl implements UmsCreditService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean unfreezeCredit(CreditUnfreezeRequest request) {
-        log.info("开始释放积分: businessId={}, reason={}", request.getBusinessId(), request.getReason());
+        log.info("开始释放积分: businessId={}, businessType={}, reason={}",
+            request.getBusinessId(), request.getBusinessType(), request.getReason());
 
-        // 1. 查询冻结记录
-        UmsIntegrationFreeze freeze = freezeMapper.selectByBusinessId(request.getBusinessId());
+        // 1. 查询冻结记录（使用新方法，精确匹配）
+        UmsIntegrationFreeze freeze = freezeMapper.selectByBusinessIdAndType(
+            request.getBusinessId(),
+            request.getBusinessType()
+        );
+
         if (freeze == null) {
-            log.error("冻结记录不存在: businessId={}", request.getBusinessId());
-            throw new ApiException("冻结记录不存在");
+            log.error("冻结记录不存在: businessId={}, businessType={}",
+                request.getBusinessId(), request.getBusinessType());
+            throw new ApiException(String.format(
+                "冻结记录不存在：businessId=%s, businessType=%s",
+                request.getBusinessId(), request.getBusinessType()
+            ));
         }
 
         // 2. 幂等性检查

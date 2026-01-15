@@ -281,4 +281,13 @@
     where member_id = #{memberId,jdbcType=BIGINT}
     and `status` = 0
   </select>
+  <!-- 新增：根据业务ID和业务类型查询冻结记录 -->
+  <select id="selectByBusinessIdAndType" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ums_integration_freeze
+    where business_id = #{businessId,jdbcType=VARCHAR}
+      and business_type = #{businessType,jdbcType=VARCHAR}
+    limit 1
+  </select>
 </mapper>
