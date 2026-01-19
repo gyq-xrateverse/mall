@@ -22,7 +22,7 @@ public interface UmsMemberIntegrationService {
     /**
      * 查询用户积分冻结详情
      */
-    List<UmsIntegrationFreeze> getFreezeList(Long memberId);
+    List<UmsIntegrationFreeze> getFreezeList(Long memberId, Integer pageNum, Integer pageSize);
 
     /**
      * 查询用户积分历史记录

@@ -76,7 +76,8 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
     }
 
     @Override
-    public List<UmsIntegrationFreeze> getFreezeList(Long memberId) {
+    public List<UmsIntegrationFreeze> getFreezeList(Long memberId, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
         UmsIntegrationFreezeExample example = new UmsIntegrationFreezeExample();
         example.createCriteria().andMemberIdEqualTo(memberId);
         example.setOrderByClause("create_time DESC");

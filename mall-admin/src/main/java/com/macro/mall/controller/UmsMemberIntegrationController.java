@@ -39,9 +39,12 @@ public class UmsMemberIntegrationController {
     @Operation(summary = "查看冻结详情")
     @RequestMapping(value = "/freeze/{memberId}", method = RequestMethod.GET)
     @ResponseBody
-    public CommonResult<List<UmsIntegrationFreeze>> getFreezeList(@PathVariable Long memberId) {
-        List<UmsIntegrationFreeze> list = integrationService.getFreezeList(memberId);
-        return CommonResult.success(list);
+    public CommonResult<CommonPage<UmsIntegrationFreeze>> getFreezeList(
+            @PathVariable Long memberId,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+        List<UmsIntegrationFreeze> list = integrationService.getFreezeList(memberId, pageNum, pageSize);
+        return CommonResult.success(CommonPage.restPage(list));
     }
 
     @Operation(summary = "查看积分历史")

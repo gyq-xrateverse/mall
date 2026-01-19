@@ -339,7 +339,7 @@ class UmsMemberIntegrationServiceTest {
         when(freezeMapper.selectByExample(any())).thenReturn(Collections.singletonList(freeze));
 
         // When
-        List<UmsIntegrationFreeze> result = integrationService.getFreezeList(1L);
+        List<UmsIntegrationFreeze> result = integrationService.getFreezeList(1L, 1, 10);
 
         // Then
         assertNotNull(result);
