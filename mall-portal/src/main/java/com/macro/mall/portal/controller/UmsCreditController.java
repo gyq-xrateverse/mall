@@ -63,9 +63,13 @@ public class UmsCreditController {
 
             Boolean result = creditService.deductCredit(request);
 
-            log.info("扣减积分成功: businessId={}", request.getBusinessId());
-
-            return CommonResult.success(result, "积分扣减成功");
+            if (Boolean.TRUE.equals(result)) {
+                log.info("扣减积分成功: businessId={}", request.getBusinessId());
+                return CommonResult.success(null, "积分扣减成功");
+            } else {
+                log.warn("扣减积分失败: businessId={}", request.getBusinessId());
+                return CommonResult.failed("积分扣减失败");
+            }
         } catch (Exception e) {
             log.error("扣减积分失败: businessId={}", request.getBusinessId(), e);
             return CommonResult.failed(e.getMessage());
@@ -82,9 +86,13 @@ public class UmsCreditController {
 
             Boolean result = creditService.unfreezeCredit(request);
 
-            log.info("释放积分成功: businessId={}", request.getBusinessId());
-
-            return CommonResult.success(result, "积分释放成功");
+            if (Boolean.TRUE.equals(result)) {
+                log.info("释放积分成功: businessId={}", request.getBusinessId());
+                return CommonResult.success(null, "积分释放成功");
+            } else {
+                log.warn("释放积分失败: businessId={}", request.getBusinessId());
+                return CommonResult.failed("积分释放失败");
+            }
         } catch (Exception e) {
             log.error("释放积分失败: businessId={}", request.getBusinessId(), e);
             return CommonResult.failed(e.getMessage());
