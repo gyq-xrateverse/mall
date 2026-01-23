@@ -26,6 +26,10 @@
             <groupId>com.macro.mall</groupId>
             <artifactId>mall-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.macro.mall</groupId>
+            <artifactId>mall-integration</artifactId>
+        </dependency>
         <!--mongodb依赖配置-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

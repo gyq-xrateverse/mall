@@ -2,10 +2,10 @@ package com.macro.mall.controller;
 
 import com.macro.mall.common.api.CommonPage;
 import com.macro.mall.common.api.CommonResult;
-import com.macro.mall.dto.*;
+import com.macro.mall.integration.dto.*;
 import com.macro.mall.model.UmsIntegrationChangeHistory;
 import com.macro.mall.model.UmsIntegrationFreeze;
-import com.macro.mall.service.UmsMemberIntegrationService;
+import com.macro.mall.integration.service.UmsMemberIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

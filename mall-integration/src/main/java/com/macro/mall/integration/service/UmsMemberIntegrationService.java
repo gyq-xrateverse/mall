@@ -1,8 +1,8 @@
-package com.macro.mall.service;
+package com.macro.mall.integration.service;
 
-import com.macro.mall.dto.UmsMemberIntegrationParam;
-import com.macro.mall.dto.UmsMemberIntegrationQuery;
-import com.macro.mall.dto.UmsMemberIntegrationVO;
+import com.macro.mall.integration.dto.UmsMemberIntegrationParam;
+import com.macro.mall.integration.dto.UmsMemberIntegrationQuery;
+import com.macro.mall.integration.dto.UmsMemberIntegrationVO;
 import com.macro.mall.model.UmsIntegrationChangeHistory;
 import com.macro.mall.model.UmsIntegrationFreeze;
 

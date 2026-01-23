@@ -26,6 +26,10 @@
             <artifactId>mall-security</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.macro.mall</groupId>
+            <artifactId>mall-integration</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
             <exclusions>

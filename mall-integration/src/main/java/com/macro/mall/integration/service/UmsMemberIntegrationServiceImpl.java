@@ -1,11 +1,11 @@
-package com.macro.mall.service.impl;
+package com.macro.mall.integration.service;
 
 import com.github.pagehelper.PageHelper;
 import com.macro.mall.common.service.RedisService;
 import com.macro.mall.dao.UmsMemberDao;
-import com.macro.mall.dto.UmsMemberIntegrationParam;
-import com.macro.mall.dto.UmsMemberIntegrationQuery;
-import com.macro.mall.dto.UmsMemberIntegrationVO;
+import com.macro.mall.integration.dto.UmsMemberIntegrationParam;
+import com.macro.mall.integration.dto.UmsMemberIntegrationQuery;
+import com.macro.mall.integration.dto.UmsMemberIntegrationVO;
 import com.macro.mall.mapper.UmsIntegrationChangeHistoryMapper;
 import com.macro.mall.mapper.UmsIntegrationFreezeMapper;
 import com.macro.mall.mapper.UmsMemberMapper;
@@ -15,7 +15,7 @@ import com.macro.mall.model.UmsIntegrationFreeze;
 import com.macro.mall.model.UmsIntegrationFreezeExample;
 import com.macro.mall.model.UmsMember;
 import com.macro.mall.model.UmsMemberExample;
-import com.macro.mall.service.UmsMemberIntegrationService;
+import com.macro.mall.integration.service.UmsMemberIntegrationService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
