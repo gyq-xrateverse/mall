@@ -1,6 +1,7 @@
 package com.macro.mall.portal.service.impl;
 
 import com.macro.mall.common.enums.BusinessType;
+import com.macro.mall.common.enums.IntegrationSourceType;
 import com.macro.mall.common.exception.ApiException;
 import com.macro.mall.integration.service.UmsMemberIntegrationService;
 import com.macro.mall.mapper.UmsIntegrationFreezeMapper;
@@ -41,7 +42,8 @@ public class UmsCreditServiceImpl implements UmsCreditService {
                 request.getFreezeAmount(),
                 request.getBusinessId(),
                 BusinessType.fromName(request.getBusinessType()).getCode(),
-                request.getNote() != null ? request.getNote() : "AI任务积分冻结"
+                request.getNote() != null ? request.getNote() : "AI任务积分冻结",
+                "系统"  // RPC调用时，始终使用"系统"作为操作人
             );
 
             log.info("积分冻结成功: freezeId={}, memberId={}, amount={}, businessId={}",
@@ -77,7 +79,13 @@ public class UmsCreditServiceImpl implements UmsCreditService {
 
             // 调用统一积分服务的扣减方法
             Integer sourceType = determineSourceType(request.getBusinessType());
-            int result = integrationService.deductIntegration(request.getBusinessId(), sourceType);
+
+            // 获取操作人：从请求对象中获取，如果没有则默认为"系统"
+            String operateMan = (request.getOperateMan() != null && !request.getOperateMan().isEmpty())
+                ? request.getOperateMan()
+                : "系统";
+
+            int result = integrationService.deductIntegration(request.getBusinessId(), sourceType, operateMan);
 
             log.info("积分扣减成功: businessId={}, result={}", request.getBusinessId(), result);
             return result > 0;
@@ -109,9 +117,15 @@ public class UmsCreditServiceImpl implements UmsCreditService {
             }
 
             // 调用统一积分服务的释放方法
+            // 获取操作人：从请求对象中获取，如果没有则默认为"系统"
+            String operateMan = (request.getOperateMan() != null && !request.getOperateMan().isEmpty())
+                ? request.getOperateMan()
+                : "系统";
+
             int result = integrationService.releaseIntegration(
                 request.getBusinessId(),
-                request.getReason()
+                request.getReason(),
+                operateMan
             );
 
             log.info("积分释放成功: businessId={}, result={}", request.getBusinessId(), result);
@@ -155,8 +169,10 @@ public class UmsCreditServiceImpl implements UmsCreditService {
      * 根据业务类型确定来源类型
      */
     private Integer determineSourceType(String businessType) {
-        // 根据业务类型映射到来源类型
-        // 7->订单支付 或 8->订单取消
-        return 7; // 默认为订单支付
+        if ("video_generation".equals(businessType)) {
+            return IntegrationSourceType.VIDEO_GENERATION.getCode(); // 11
+        }
+        // 其他业务类型可以在这里添加
+        return IntegrationSourceType.ORDER_PAYMENT.getCode(); // 默认为订单支付
     }
 }

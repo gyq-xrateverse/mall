@@ -206,7 +206,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote) {
+    public UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote, String operateMan) {
         try {
             // 使用悲观锁查询用户
             UmsMember member = memberDao.selectByIdForUpdate(memberId);
@@ -244,7 +244,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
             history.setChangeType(1); // 1->减少
             history.setChangeCount(amount);
             history.setSourceType(9); // 9->冻结
-            history.setOperateMan(getCurrentUsername());
+            history.setOperateMan(operateMan != null && !operateMan.isEmpty() ? operateMan : "系统");
             history.setOperateNote(operateNote);
             history.setBusinessId(businessId);
             history.setBusinessType(String.valueOf(businessType));
@@ -267,7 +267,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deductIntegration(String businessId, Integer sourceType) {
+    public int deductIntegration(String businessId, Integer sourceType, String operateMan) {
         // 查询冻结记录
         UmsIntegrationFreezeExample example = new UmsIntegrationFreezeExample();
         example.createCriteria().andBusinessIdEqualTo(businessId);
@@ -293,7 +293,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setChangeType(1); // 1->减少
         history.setChangeCount(freeze.getFreezeAmount());
         history.setSourceType(sourceType); // 7->订单支付 或 8->订单取消
-        history.setOperateMan("系统");
+        history.setOperateMan(operateMan != null && !operateMan.isEmpty() ? operateMan : "系统");
         history.setOperateNote("解冻并扣减积分"); // N1修复：添加操作说明
         history.setBusinessId(freeze.getBusinessId());
         history.setBusinessType(freeze.getBusinessType());
@@ -306,7 +306,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int releaseIntegration(String businessId, String operateNote) {
+    public int releaseIntegration(String businessId, String operateNote, String operateMan) {
         // 查询冻结记录
         UmsIntegrationFreezeExample example = new UmsIntegrationFreezeExample();
         example.createCriteria().andBusinessIdEqualTo(businessId);
@@ -344,7 +344,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setChangeType(0); // 0->增加
         history.setChangeCount(freeze.getFreezeAmount());
         history.setSourceType(10); // 10->释放
-        history.setOperateMan("系统");
+        history.setOperateMan(operateMan != null && !operateMan.isEmpty() ? operateMan : "系统");
         history.setOperateNote(operateNote);
         history.setBusinessId(freeze.getBusinessId());
         history.setBusinessType(freeze.getBusinessType());

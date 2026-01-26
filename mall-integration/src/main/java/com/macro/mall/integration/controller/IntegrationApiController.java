@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -130,7 +133,8 @@ public class IntegrationApiController {
                     param.getAmount(),
                     param.getBusinessId(),
                     param.getBusinessType(),
-                    param.getOperateNote()
+                    param.getOperateNote(),
+                    getCurrentOperator()  // 添加操作人参数
             );
             Map<String, Object> result = new HashMap<>();
             result.put("code", 200);
@@ -149,7 +153,11 @@ public class IntegrationApiController {
     @PostMapping("/deduct")
     public ResponseEntity<Map<String, Object>> deductIntegration(@Validated @RequestBody UmsMemberDeductParam param) {
         try {
-            int count = integrationService.deductIntegration(param.getBusinessId(), param.getSourceType());
+            int count = integrationService.deductIntegration(
+                    param.getBusinessId(),
+                    param.getSourceType(),
+                    getCurrentOperator()  // 添加操作人参数
+            );
             Map<String, Object> result = new HashMap<>();
             result.put("code", 200);
             result.put("message", "success");
@@ -167,7 +175,11 @@ public class IntegrationApiController {
     @PostMapping("/release")
     public ResponseEntity<Map<String, Object>> releaseIntegration(@Validated @RequestBody UmsMemberReleaseParam param) {
         try {
-            int count = integrationService.releaseIntegration(param.getBusinessId(), param.getOperateNote());
+            int count = integrationService.releaseIntegration(
+                    param.getBusinessId(),
+                    param.getOperateNote(),
+                    getCurrentOperator()  // 添加操作人参数
+            );
             Map<String, Object> result = new HashMap<>();
             result.put("code", 200);
             result.put("message", "success");
@@ -179,5 +191,22 @@ public class IntegrationApiController {
             error.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
+    }
+
+    /**
+     * 获取当前操作人（管理员用户名）
+     * 如果无法获取，则返回"管理员"
+     */
+    private String getCurrentOperator() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                return userDetails.getUsername();
+            }
+        } catch (Exception e) {
+            // 忽略异常
+        }
+        return "管理员";
     }
 }

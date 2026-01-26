@@ -9,6 +9,9 @@ import com.macro.mall.integration.service.UmsMemberIntegrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -100,7 +103,8 @@ public class UmsMemberIntegrationController {
                 param.getAmount(),
                 param.getBusinessId(),
                 param.getBusinessType(),
-                param.getOperateNote()
+                param.getOperateNote(),
+                getCurrentOperator()  // 添加操作人参数
         );
         if (freeze != null) {
             return CommonResult.success(freeze);
@@ -112,7 +116,11 @@ public class UmsMemberIntegrationController {
     @RequestMapping(value = "/deduct", method = RequestMethod.POST)
     @ResponseBody
     public CommonResult<Integer> deductIntegration(@Valid @RequestBody UmsMemberDeductParam param) {
-        int count = integrationService.deductIntegration(param.getBusinessId(), param.getSourceType());
+        int count = integrationService.deductIntegration(
+                param.getBusinessId(),
+                param.getSourceType(),
+                getCurrentOperator()  // 添加操作人参数
+        );
         if (count > 0) {
             return CommonResult.success(count);
         }
@@ -123,10 +131,31 @@ public class UmsMemberIntegrationController {
     @RequestMapping(value = "/release", method = RequestMethod.POST)
     @ResponseBody
     public CommonResult<Integer> releaseIntegration(@Valid @RequestBody UmsMemberReleaseParam param) {
-        int count = integrationService.releaseIntegration(param.getBusinessId(), param.getOperateNote());
+        int count = integrationService.releaseIntegration(
+                param.getBusinessId(),
+                param.getOperateNote(),
+                getCurrentOperator()  // 添加操作人参数
+        );
         if (count > 0) {
             return CommonResult.success(count);
         }
         return CommonResult.failed();
+    }
+
+    /**
+     * 获取当前操作人（管理员用户名）
+     * 如果无法获取，则返回"管理员"
+     */
+    private String getCurrentOperator() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                return userDetails.getUsername();
+            }
+        } catch (Exception e) {
+            // 忽略异常
+        }
+        return "管理员";
     }
 }

@@ -48,15 +48,15 @@ public interface UmsMemberIntegrationService {
      * 冻结积分
      * @return 冻结记录对象
      */
-    UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote);
+    UmsIntegrationFreeze freezeIntegration(Long memberId, Integer amount, String businessId, Integer businessType, String operateNote, String operateMan);
 
     /**
      * 解冻并扣减积分
      */
-    int deductIntegration(String businessId, Integer sourceType);
+    int deductIntegration(String businessId, Integer sourceType, String operateMan);
 
     /**
      * 释放冻结积分
      */
-    int releaseIntegration(String businessId, String operateNote);
+    int releaseIntegration(String businessId, String operateNote, String operateMan);
 }
