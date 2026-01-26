@@ -11,7 +11,8 @@ public enum IntegrationSourceType {
     ORDER_PAYMENT(7, "订单支付"),
     FREEZE(9, "冻结"),
     RELEASE(10, "释放"),
-    VIDEO_GENERATION(11, "视频生成");
+    VIDEO_GENERATION(11, "视频生成"),
+    DEDUCT(12, "扣减");
 
     private final Integer code;
     private final String description;
