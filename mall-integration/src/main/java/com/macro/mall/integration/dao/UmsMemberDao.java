@@ -1,4 +1,4 @@
-package com.macro.mall.dao;
+package com.macro.mall.integration.dao;
 
 import com.macro.mall.model.UmsMember;
 import org.apache.ibatis.annotations.Param;

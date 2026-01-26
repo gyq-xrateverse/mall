@@ -1,8 +1,9 @@
 package com.macro.mall.integration.service;
 
 import com.github.pagehelper.PageHelper;
+import com.macro.mall.common.enums.IntegrationCreditType;
 import com.macro.mall.common.service.RedisService;
-import com.macro.mall.dao.UmsMemberDao;
+import com.macro.mall.integration.dao.UmsMemberDao;
 import com.macro.mall.integration.dto.UmsMemberIntegrationParam;
 import com.macro.mall.integration.dto.UmsMemberIntegrationQuery;
 import com.macro.mall.integration.dto.UmsMemberIntegrationVO;
@@ -119,6 +120,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setOperateMan(getCurrentUsername());
         history.setOperateNote(param.getOperateNote());
         history.setCreateTime(new Date());
+        history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
         historyMapper.insert(history);
 
         // 清除Redis缓存
@@ -158,6 +160,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setOperateMan(getCurrentUsername());
         history.setOperateNote(param.getOperateNote());
         history.setCreateTime(new Date());
+        history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
         historyMapper.insert(history);
 
         // 清除Redis缓存
@@ -192,6 +195,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setOperateMan(getCurrentUsername());
         history.setOperateNote(param.getOperateNote());
         history.setCreateTime(new Date());
+        history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
         historyMapper.insert(history);
 
         // 清除Redis缓存
@@ -245,6 +249,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
             history.setBusinessId(businessId);
             history.setBusinessType(String.valueOf(businessType));
             history.setCreateTime(new Date());
+            history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
             historyMapper.insert(history);
 
             return freeze;
@@ -293,6 +298,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setBusinessId(freeze.getBusinessId());
         history.setBusinessType(freeze.getBusinessType());
         history.setCreateTime(new Date());
+        history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
         historyMapper.insert(history);
 
         return 1;
@@ -343,6 +349,7 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         history.setBusinessId(freeze.getBusinessId());
         history.setBusinessType(freeze.getBusinessType());
         history.setCreateTime(new Date());
+        history.setCreditType(IntegrationCreditType.PERMANENT.getCode()); // 默认永久积分
         historyMapper.insert(history);
 
         // 清除Redis缓存（M3修复）
