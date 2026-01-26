@@ -1,5 +1,6 @@
 package com.macro.mall.portal.service.impl;
 
+import com.macro.mall.common.enums.BusinessType;
 import com.macro.mall.common.exception.ApiException;
 import com.macro.mall.integration.service.UmsMemberIntegrationService;
 import com.macro.mall.mapper.UmsIntegrationFreezeMapper;
@@ -39,7 +40,7 @@ public class UmsCreditServiceImpl implements UmsCreditService {
                 request.getMemberId(),
                 request.getFreezeAmount(),
                 request.getBusinessId(),
-                Integer.parseInt(request.getBusinessType()),
+                BusinessType.fromName(request.getBusinessType()).getCode(),
                 request.getNote() != null ? request.getNote() : "AI任务积分冻结"
             );
 
