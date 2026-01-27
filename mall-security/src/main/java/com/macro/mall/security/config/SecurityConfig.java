@@ -42,7 +42,7 @@ public class SecurityConfig {
     SecurityFilterChain adminFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
             // 只处理管理员相关的请求路径，排除Portal API
-            .securityMatcher(request -> !request.getRequestURI().startsWith("/api/"))
+            .securityMatcher("/admin/**")
             .authorizeHttpRequests(registry -> {
                 //不需要保护的资源路径允许访问
                 for (String url : ignoreUrlsConfig.getUrls()) {
