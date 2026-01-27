@@ -10,6 +10,10 @@ on:
     paths:
       - 'mall-admin/**'
       - 'mall-portal/**'
+      - 'mall-security/**'
+      - 'mall-mbg/**'
+      - 'mall-integration/**'
+      - 'mall-common/**'
       - '.github/workflows/docker-build.yml'
 
 env:
