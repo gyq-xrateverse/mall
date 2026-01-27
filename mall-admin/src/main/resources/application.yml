@@ -13,6 +13,8 @@ spring:
       matching-strategy: ant_path_matcher
 
 server:
+  servlet:
+    context-path: /api #所有Controller接口统一添加/api前缀
   tomcat:
     max-swallow-size: 500MB #Tomcat最大请求大小
     max-http-header-size: 100MB #HTTP请求头最大大小
@@ -41,20 +43,20 @@ redis:
 secure:
   ignored:
     urls: #安全路径白名单
-      - /swagger-ui/
-      - /v3/api-docs/*
-      - /*/*.html
-      - /*/*.js
-      - /*/*.css
-      - /*/*.png
-      - /favicon.ico
-      - /actuator/**
-      - /druid/**
-      - /admin/login
-      - /admin/register
-      - /admin/info
-      - /admin/logout
-      - /minio/upload
+      - /api/swagger-ui/
+      - /api/v3/api-docs/*
+      - /api/*/*.html
+      - /api/*/*.js
+      - /api/*/*.css
+      - /api/*/*.png
+      - /api/favicon.ico
+      - /api/actuator/**
+      - /api/druid/**
+      - /api/admin/login
+      - /api/admin/register
+      - /api/admin/info
+      - /api/admin/logout
+      - /api/minio/upload
 
 springdoc:
   swagger-ui:
