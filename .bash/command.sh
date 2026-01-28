@@ -112,8 +112,8 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d 
 docker logs beilv_agent_nginx -f
 
 
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml down new-api
-docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml up -d new-api
+docker compose -f /root/install/beilv-agent-deploy/docker-compose.yml down new-api
+docker compose -f /root/install/beilv-agent-deploy/docker-compose.yml up -d new-api
 docker logs beilv_agent_new_api -f
 
 
