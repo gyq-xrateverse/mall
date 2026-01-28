@@ -1,6 +1,8 @@
 package com.macro.mall.integration.service;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.macro.mall.common.enums.IntegrationCreditType;
 import com.macro.mall.common.service.RedisService;
 import com.macro.mall.integration.dao.UmsMemberDao;
@@ -66,7 +68,11 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
         example.setOrderByClause("create_time DESC");
         List<UmsMember> members = memberMapper.selectByExample(example);
 
-        return members.stream().map(member -> {
+        // 先保存分页信息
+        PageInfo<UmsMember> pageInfo = new PageInfo<>(members);
+
+        // 转换数据
+        List<UmsMemberIntegrationVO> voList = members.stream().map(member -> {
             UmsMemberIntegrationVO vo = new UmsMemberIntegrationVO();
             BeanUtils.copyProperties(member, vo);
             // 查询并设置冻结积分
@@ -74,6 +80,13 @@ public class UmsMemberIntegrationServiceImpl implements UmsMemberIntegrationServ
             vo.setFreezeIntegration(frozenIntegration != null ? frozenIntegration : 0);
             return vo;
         }).collect(Collectors.toList());
+
+        // 用Page包装转换后的结果，保持分页元数据（参考PageHelper最佳实践）
+        Page<UmsMemberIntegrationVO> result = new Page<>(pageInfo.getPageNum(), pageInfo.getPageSize());
+        result.setTotal(pageInfo.getTotal());
+        result.addAll(voList);
+
+        return result;
     }
 
     @Override
