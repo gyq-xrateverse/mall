@@ -1,24 +1,24 @@
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest && \
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest && \
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent:latest && \
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest && \
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-admin:latest && \
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-portal:latest && \
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent:latest && \
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-admin-web:latest && \
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent-web:latest
 
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/new-api:latest
-
-
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/new-api:latest
 
 
 
 
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin-web:latest
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+
+
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-admin-web:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent-web:latest
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml up -d
 
 
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-admin:latest
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/mall-portal:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-admin:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/mall-portal:latest
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml up -d
 
@@ -56,8 +56,8 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml start 
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-env.yml restart redis
 
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent:latest
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent-web:latest
 
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml down beilv-agent
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-app.yml create beilv-agent
@@ -68,7 +68,7 @@ docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml c
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml start beilv-agent-web
 
 # 临时外网
-docker pull crpi-4z4v1n5g8hbg9g3x.cn-hangzhou.personal.cr.aliyuncs.com/beilv-agent/beilv-agent-web-foreign:latest
+docker pull crpi-ni3ahd37mttrjwgx.cn-hangzhou.personal.cr.aliyuncs.com/ratev-agent/beilv-agent-web-foreign:latest
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml down beilv-agent-web-foreign
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml create beilv-agent-web-foreign
 docker compose -f /root/install/beilv-agent-deploy/docker-compose-frontend.yml start beilv-agent-web-foreign

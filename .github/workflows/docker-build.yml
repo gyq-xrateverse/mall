@@ -18,8 +18,8 @@ on:
 
 env:
   ALIYUN_DOCKER_REGISTRY: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}
-  MALL_ADMIN_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/beilv-agent/mall-admin
-  MALL_PORTAL_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/beilv-agent/mall-portal
+  MALL_ADMIN_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/ratev-agent/mall-admin
+  MALL_PORTAL_IMAGE: ${{ secrets.ALIYUN_DOCKER_REGISTRY }}/ratev-agent/mall-portal
 
 jobs:
   build-and-push:
